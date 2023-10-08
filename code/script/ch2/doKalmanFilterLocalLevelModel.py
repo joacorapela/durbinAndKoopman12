@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-sys.path.append("../src")
+sys.path.append("../../src")
 import tsa
 
 def main(argv):
@@ -22,10 +22,13 @@ def main(argv):
                         help="state noise variance",
                         default=1469.1)
     parser.add_argument("--data_filename", type=str, help="data filename",
-                        default="../../data/Nile.csv")
+                        default="../../../data/Nile.csv")
+    parser.add_argument("--fig_filename_pattern", type=str,
+                        help="figure filename pattern",
+                        default="../../../figures/ch2/fig2_1{:s}.{:s}")
     parser.add_argument("--results_filename_pattern", type=str,
                         help="results filename pattern",
-                        default="../../results/Nile_a1{:.02f}_P1{:02f}_s2Epsilon{:02f}_s2Eta{:02f}.pickle")
+                        default="../../../results/Nile_a1{:.02f}_P1{:02f}_s2Epsilon{:02f}_s2Eta{:02f}.pickle")
 
     args = parser.parse_args()
     a1 = args.a1
@@ -33,6 +36,7 @@ def main(argv):
     sigma2Epsilon = args.sigma2Epsilon
     sigma2Eta = args.sigma2Eta
     data_filename = args.data_filename
+    fig_filename_pattern = args.fig_filename_pattern
     results_filename = args.results_filename_pattern.format(a1, P1,
                                                             sigma2Epsilon,
                                                             sigma2Eta)
@@ -104,30 +108,10 @@ def main(argv):
     fig.update_yaxes(title="Nile River Annual Flow Volume at Aswan", range=(np.min(measurements), np.max(measurements)))
     fig.update_xaxes(title="Year")
 
-    fig.show()
-
-    fig = go.Figure()
-    trace_innovations = go.Scatter(x=years, y=innovations,
-                                   name="innovations", mode="lines",
-                                   line=dict(color="black", width=1.0))
-    fig.add_trace(trace_innovations)
-    fig.add_hline(y=0)
-
-    fig.update_yaxes(title="Innovation")
-    fig.update_xaxes(title="Year")
-
-    fig.show()
-
-    fig = go.Figure()
-    trace_innovations = go.Scatter(x=years, y=innovation_variances,
-                                   mode="lines",
-                                   line=dict(color="black", width=1.0),
-                                   showlegend=False)
-    fig.add_trace(trace_innovations)
-
-    fig.update_yaxes(title="Innovation Variance", range=(20000, 32500))
-    fig.update_xaxes(title="Year")
-
+    png_filename = fig_filename_pattern.format("i", "png")
+    html_filename = fig_filename_pattern.format("i", "html")
+    fig.write_image(png_filename)
+    fig.write_html(html_filename)
     fig.show()
 
     fig = go.Figure()
@@ -140,6 +124,42 @@ def main(argv):
     fig.update_yaxes(title="Predicted State Variance", range=(5000, 17500))
     fig.update_xaxes(title="Year")
 
+    png_filename = fig_filename_pattern.format("ii", "png")
+    html_filename = fig_filename_pattern.format("ii", "html")
+    fig.write_image(png_filename)
+    fig.write_html(html_filename)
+    fig.show()
+
+    fig = go.Figure()
+    trace_innovations = go.Scatter(x=years, y=innovations,
+                                   name="innovations", mode="lines",
+                                   line=dict(color="black", width=1.0))
+    fig.add_trace(trace_innovations)
+    fig.add_hline(y=0)
+
+    fig.update_yaxes(title="Innovation")
+    fig.update_xaxes(title="Year")
+
+    png_filename = fig_filename_pattern.format("iii", "png")
+    html_filename = fig_filename_pattern.format("iii", "html")
+    fig.write_image(png_filename)
+    fig.write_html(html_filename)
+    fig.show()
+
+    fig = go.Figure()
+    trace_innovations = go.Scatter(x=years, y=innovation_variances,
+                                   mode="lines",
+                                   line=dict(color="black", width=1.0),
+                                   showlegend=False)
+    fig.add_trace(trace_innovations)
+
+    fig.update_yaxes(title="Innovation Variance", range=(20000, 32500))
+    fig.update_xaxes(title="Year")
+
+    png_filename = fig_filename_pattern.format("iv", "png")
+    html_filename = fig_filename_pattern.format("iv", "html")
+    fig.write_image(png_filename)
+    fig.write_html(html_filename)
     fig.show()
 
     breakpoint()

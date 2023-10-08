@@ -6,24 +6,28 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-sys.path.append("../src")
+sys.path.append("../../src")
 import tsa
 
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_filename", type=str, help="data filename",
-                        default="../../data/Nile.csv")
+                        default="../../../data/Nile.csv")
     parser.add_argument("--filtering_results_filename", type=str,
                         help="filtering results filename",
-                        default="../../results/Nile_a1nan_P110000000.000000_s2Epsilon15099.000000_s2Eta1469.100000.pickle")
+                        default="../../../results/Nile_a1nan_P110000000.000000_s2Epsilon15099.000000_s2Eta1469.100000.pickle")
     parser.add_argument("--smoothing_results_filename", type=str,
                         help="smoothing results filename",
-                        default="../../results/Nile_a1nan_P110000000.000000_s2Epsilon15099.000000_s2Eta1469.100000_smoothing.pickle")
+                        default="../../../results/Nile_a1nan_P110000000.000000_s2Epsilon15099.000000_s2Eta1469.100000_smoothing.pickle")
+    parser.add_argument("--fig_filename_pattern", type=str,
+                        help="figure filename pattern",
+                        default="../../../figures/ch2/fig2_2{:s}.{:s}")
 
     args = parser.parse_args()
     data_filename = args.data_filename
     filtering_results_filename = args.filtering_results_filename
     smoothing_results_filename = args.smoothing_results_filename
+    fig_filename_pattern = args.fig_filename_pattern
 
     data = pd.read_csv(data_filename)
     years = data["time"]
@@ -77,6 +81,12 @@ def main(argv):
     fig.update_yaxes(title="Nile River Annual Flow Volume at Aswan", range=(np.min(measurements), np.max(measurements)))
     fig.update_xaxes(title="Year")
 
+    png_filename = fig_filename_pattern.format("i", "png")
+    html_filename = fig_filename_pattern.format("i", "html")
+    fig.write_image(png_filename)
+    fig.write_html(html_filename)
+    fig.show()
+
     fig.show()
 
     fig = go.Figure()
@@ -86,9 +96,13 @@ def main(argv):
                                     showlegend=False)
     fig.add_trace(trace_smoothed_var)
 
-    fig.update_yaxes(title="Smoothed State Variance", range=(5000, 17500))
+    fig.update_yaxes(title="Smoothed State Variance")
     fig.update_xaxes(title="Year")
 
+    png_filename = fig_filename_pattern.format("ii", "png")
+    html_filename = fig_filename_pattern.format("ii", "html")
+    fig.write_image(png_filename)
+    fig.write_html(html_filename)
     fig.show()
 
     breakpoint()
