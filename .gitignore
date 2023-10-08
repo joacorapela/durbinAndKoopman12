@@ -1,7 +1,14 @@
 *~
 *.swp
 toRsync
+*.out
+*.aux
+*.blg
+*.bbl
+*.log
+
 communications/
 results/
 data/
 __pycache__/
+figures/
