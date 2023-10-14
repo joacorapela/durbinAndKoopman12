@@ -44,8 +44,7 @@ def main(argv):
 
     llmKF = tsa.LocalLevelModelKalmanFilter(sigma2Epsilon=sigma2Epsilon,
                                             sigma2Eta=sigma2Eta)
-    alphaHat, Vt = llmKF.smooth(ys=measurements, at=at, Pt=Pt, atgt=atgt,
-                                Ptgt=Ptgt)
+    alphaHat, Vt = llmKF.smooth(at=at, Pt=Pt, atgt=atgt, Ptgt=Ptgt)
     smoothed_means = alphaHat
     smoothed_vars = Vt
 
