@@ -1,6 +1,7 @@
 
 import numpy as np
 
+
 class LocalLevelModelKalmanFilter:
     def __init__(self, sigma2Epsilon, sigma2Eta):
         self._sigma2Epsilon = sigma2Epsilon
@@ -12,14 +13,18 @@ class LocalLevelModelKalmanFilter:
         return atp1, Ptp1
 
     def update(self, at, Pt, yt):
-        vt = yt - at
         Ft = Pt + self._sigma2Epsilon
-        Kt = Pt/Ft
-        atgt = at + Kt * vt
-        Ptgt = Pt*(1-Kt)
+        vt = yt - at
+        if not np.isnan(yt):
+            Kt = Pt/Ft
+            atgt = at + Kt * vt
+        else:
+            Kt = 0.0
+            atgt = at
+        Ptgt = Pt * (1-Kt)
         return atgt, Ptgt, vt, Ft, Kt
 
-    def smooth(self, ys, at, Pt, atgt, Ptgt):
+    def smooth(self, at, Pt, atgt, Ptgt):
         N = len(at)
         alphaHat = np.empty(N)
         Vt = np.empty(N)
@@ -30,5 +35,3 @@ class LocalLevelModelKalmanFilter:
             alphaHat[i] = atgt[i] + Ptgt[i]/Pt[i+1] * (alphaHat[i+1] - at[i+1])
             Vt[i] = Ptgt[i] + (Ptgt[i]/Pt[i+1])**2 * (Vt[i+1] - Pt[i+1])
         return alphaHat, Vt
-
-
