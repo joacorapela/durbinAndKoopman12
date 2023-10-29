@@ -1,8 +1,9 @@
 
 import sys
 import argparse
+import pickle
 import numpy as np
-import pandas as pd
+import scipy.optimize
 
 sys.path.append("../../src")
 import tsa
@@ -10,45 +11,77 @@ import tsa
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--a10", type=float, help="initial filter mean",
-                        default=float("nan"))
-    parser.add_argument("--P10", type=float, help="initial filter variance",
-                        default=1e7)
-    parser.add_argument("--sigma2Epsilon0", type=float,
-                        help="observations noise variance",
-                        default=15099.0)
-    parser.add_argument("--sigma2Eta0", type=float,
-                        help="state noise variance",
-                        default=1469.1)
-    parser.add_argument("--data_filename", type=str, help="data filename",
-                        default="../../../data/Nile.csv")
-    parser.add_argument("--results_filename_pattern", type=str,
-                        help="results filename pattern",
-                        default="../../../results/ch2/fig2_6{:s}.{:s}")
+    parser.add_argument("--sim_res_number", type=int,
+                        help="simulation result number", default=372651)
+    parser.add_argument("--a10", type=float,
+                        help="initial condition for initial state mean",
+                        default=1.0)
+    parser.add_argument("--P10", type=float,
+                        help="initial condition for initial state variance",
+                        default=1e1)
+    parser.add_argument("--sigma_epsilon0", type=float,
+                        help=("initial condition for observations noise "
+                              "variance"),
+                        default=0.5)
+    parser.add_argument("--sigma_eta0", type=float,
+                        help="initial condition for state noise variance",
+                        default=2.0)
+    parser.add_argument("--sim_res_filename_pattern", type=str,
+                        help="simulation result filename pattern",
+                        default="../../../data/{:08d}_simRes.pickle")
+    parser.add_argument("--est_res_metadata_filename_pattern",
+                        help="estimation metadata filename pattern", type=str,
+                        default="../../../data/{:08d}_est_metadata.ini")
+    parser.add_argument("--est_res_filename_pattern", type=str,
+                        help="estimation result filename pattern",
+                        default="../../../data/{:08d}_est_res.pickle")
 
     args = parser.parse_args()
+    sim_res_number = args.sim_res_number
     a10 = args.a10
     P10 = args.P10
-    sigma2Epsilon0 = args.sigma2Epsilon0
-    sigma2Eta0 = args.sigma2Eta0
-    data_filename = args.data_filename
-    fig_filename_pattern = args.fig_filename_pattern
+    sigma_epsilon0 = args.sigma_epsilon0
+    sigma_eta0 = args.sigma_eta0
+    sim_res_filename_pattern = args.sim_res_filename_pattern
+    est_res_metadata_filename_pattern = args.est_res_metadata_filename_pattern
+    est_res_filename_pattern = args.est_res_filename_pattern
 
-    data = pd.read_csv(data_filename)
-    years = data["time"].to_numpy()
-    measurements = data["Nile"].to_numpy()
+    maxiter = 100
+    disp = True
+    method = "BFGS"
 
-    measurements = np.append(measurements, np.ones(forecast_horizon)*np.nan)
-    years = np.append(years, years[-1]+1+np.arange(forecast_horizon))
+    sim_res_filename = sim_res_filename_pattern.format(sim_res_number)
+    with open(sim_res_filename, "rb") as f:
+        sim_res = pickle.load(f)
+    y = sim_res["y"]
 
-    llmLLcalc = LLMlogLikeCalc(yt=measurements)
-    params0 = np.array([a10, P10, sigma2Epsilon0, sigma2Eta0])
+    llmLLcalc = tsa.LocalLevelModelLogLikeCalculator(y=y)
+    params0 = np.array([a10, np.log(P10), np.log(sigma_epsilon0**2),
+                        np.log(sigma_eta0**2)])
     options = {"maxiter": maxiter, "disp": disp}
-    def callback(intermediate_result):
-        print("LL(a1={:.02f}, P1={:.02f}, lepsilon={:.02f}, leta={:.02f})={:.02f}".format(*intermediate_result.x, intermediate_result.fun})
-    optim_res = scipy.optimize.minimize(fun=llmLLcalc.eval, x0=params0,
-                                        method=method, jac=llmLLcal.grad,
-                                        options=options, callback=callback,
+
+    def callback(intermediate_result: scipy.optimize.OptimizeResult):
+        # print("LL(a1={:.02f}, lP1={:.02f}, ls2ep={:.02f}, ls2eta={:.02f})={:.02f}".format(
+        #     intermediate_result["x"][0],
+        #     intermediate_result["x"][1],
+        #     intermediate_result["x"][2],
+        #     intermediate_result["x"][3],
+        #     intermediate_result["fun"]))
+        print("LL(a1={:.02f}, lP1={:.02f}, ls2ep={:.02f}, ls2et={:.02f})".format(
+            intermediate_result[0],
+            intermediate_result[1],
+            intermediate_result[2],
+            intermediate_result[3]))
+
+    def fun(x):
+        return -llmLLcalc.ll(x)
+
+    def grad(x):
+        return -llmLLcalc.grad(x)
+
+    optim_res = scipy.optimize.minimize(fun=fun, x0=params0,
+                                        method=method, jac=grad,
+                                        options=options, callback=callback)
 
     breakpoint()
 
