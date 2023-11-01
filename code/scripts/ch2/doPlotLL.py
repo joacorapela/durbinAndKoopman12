@@ -13,13 +13,14 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--sim_res_number", type=int,
                         # help="simulation result number", default=372651)
-                        help="simulation result number", default=27465920)
+                        # help="simulation result number", default=27465920)
+                        help="simulation result number", default=16347168)
     parser.add_argument("--a1", type=float,
                         help="initial condition for initial state mean",
                         default=0.0)
     parser.add_argument("--P1", type=float,
                         help="initial condition for initial state variance",
-                        default=1e2)
+                        default=0.01)
     parser.add_argument("--sigma_epsilon", type=float,
                         help=("initial condition for observations noise "
                               "variance"),
@@ -36,6 +37,9 @@ def main(argv):
     parser.add_argument("--est_res_filename_pattern", type=str,
                         help="estimation result filename pattern",
                         default="../../../results/{:08d}_est_res.pickle")
+    parser.add_argument("--fig_filename_pattern", type=str,
+                        help="figure filename pattern",
+                        default="../../../figures/{:08d}_{:s}.{:s}")
 
     args = parser.parse_args()
     sim_res_number = args.sim_res_number
@@ -44,6 +48,7 @@ def main(argv):
     ls2ep = np.log(args.sigma_epsilon**2)
     ls2et = np.log(args.sigma_eta**2)
     sim_res_filename_pattern = args.sim_res_filename_pattern
+    fig_filename_pattern = args.fig_filename_pattern
 
     sim_res_filename = sim_res_filename_pattern.format(sim_res_number)
     with open(sim_res_filename, "rb") as f:
@@ -66,6 +71,13 @@ def main(argv):
     fig.add_trace(trace)
     fig.update_xaxes(title_text="ls2ep")
     fig.update_yaxes(title_text="ll")
+
+    static_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                      "llVsls2ep", "png")
+    dynamic_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                       "llVsls2ep", "html")
+    fig.write_image(static_fig_filename)
+    fig.write_html(dynamic_fig_filename)
     fig.show()
 
     lls = np.empty(len(ls2eps), dtype=np.double)
@@ -77,6 +89,13 @@ def main(argv):
     fig.add_trace(trace)
     fig.update_xaxes(title_text="ls2et")
     fig.update_yaxes(title_text="ll")
+
+    static_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                      "llVsls2et", "png")
+    dynamic_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                       "llVsls2et", "html")
+    fig.write_image(static_fig_filename)
+    fig.write_html(dynamic_fig_filename)
     fig.show()
 
     lls = np.empty(len(a1s), dtype=np.double)
@@ -88,6 +107,13 @@ def main(argv):
     fig.add_trace(trace)
     fig.update_xaxes(title_text="a1")
     fig.update_yaxes(title_text="ll")
+
+    static_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                      "llVsa1", "png")
+    dynamic_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                       "llVsa1", "html")
+    fig.write_image(static_fig_filename)
+    fig.write_html(dynamic_fig_filename)
     fig.show()
 
     lls = np.empty(len(a1s), dtype=np.double)
@@ -99,6 +125,13 @@ def main(argv):
     fig.add_trace(trace)
     fig.update_xaxes(title_text="lP1")
     fig.update_yaxes(title_text="ll")
+
+    static_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                      "llVslP1", "png")
+    dynamic_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                       "llVslP1", "html")
+    fig.write_image(static_fig_filename)
+    fig.write_html(dynamic_fig_filename)
     fig.show()
 
 #     lls = np.empty((len(a1s), len(lP1s)), dtype=np.double)
@@ -112,18 +145,26 @@ def main(argv):
 #     fig.update_xaxes(title_text="log P1")
 #     fig.update_yaxes(title_text="log a1")
 #     fig.show()
-# 
-#     lls = np.empty((len(ls2eps), len(ls2ets)), dtype=np.double)
-#     for i, tls2ep in enumerate(ls2eps):
-#         for j, tls2et in enumerate(ls2ets):
-#             lls[i, j] = llmLLcalc.ll(np.array([a1, lP1, tls2ep, tls2et]))
-# 
-#     fig = go.Figure()
-#     trace = go.Contour(z=lls, x=ls2ets, y=ls2eps)
-#     fig.add_trace(trace)
-#     fig.update_xaxes(title_text="ls2et")
-#     fig.update_yaxes(title_text="ls2ep")
-#     fig.show()
+
+    lls = np.empty((len(ls2eps), len(ls2ets)), dtype=np.double)
+    for i, tls2ep in enumerate(ls2eps):
+        for j, tls2et in enumerate(ls2ets):
+            lls[i, j] = llmLLcalc.ll(np.array([a1, lP1, tls2ep, tls2et]))
+
+    fig = go.Figure()
+    trace = go.Contour(z=lls, x=ls2ets, y=ls2eps)
+    fig.add_trace(trace)
+    fig.update_traces(ncontours=50, selector=dict(type='contour'))
+    fig.update_xaxes(title_text="ls2et")
+    fig.update_yaxes(title_text="ls2ep")
+
+    static_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                      "llVsls2epVsls2et", "png")
+    dynamic_fig_filename = fig_filename_pattern.format(sim_res_number,
+                                                       "llVsls2epVsls2et", "html")
+    fig.write_image(static_fig_filename)
+    fig.write_html(dynamic_fig_filename)
+    fig.show()
 
     breakpoint()
 
