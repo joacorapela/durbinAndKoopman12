@@ -52,18 +52,46 @@ class LocalLevelModelKalmanFilter:
 
 class LocalLevelModelLogLikeCalculator:
 
-    def __init__(self, y):
+    def __init__(self, y,
+                 params_to_estimate=["a1", "lP1", "ls2ep", "ls2et"],
+                 fixed_params_values={}):
         self._y = y
         self._last_params = None
         self._filter_res = None
         self._grad_filter_res = None
+        self._params_to_estimate = params_to_estimate
+        self._fixed_params_values = fixed_params_values
+
+    def get_all_params(self, params):
+        try:
+            index = self._params_to_estimate.index("a1")
+            a1 = params[index]
+        except ValueError:
+            a1 = self._fixed_params_values["a1"]
+
+        try:
+            index = self._params_to_estimate.index("lP1")
+            lP1 = params[index]
+        except ValueError:
+            lP1 = self._fixed_params_values["lP1"]
+
+        try:
+            index = self._params_to_estimate.index("ls2ep")
+            ls2ep = params[index]
+        except ValueError:
+            ls2ep = self._fixed_params_values["ls2ep"]
+
+        try:
+            index = self._params_to_estimate.index("ls2et")
+            ls2et = params[index]
+        except ValueError:
+            ls2et = self._fixed_params_values["ls2et"]
+
+        return a1, lP1, ls2ep, ls2et
 
     def ll(self, params):
-        # params = [P1,a1,ls2ep,ls2et]
-        a1 = params[0]
-        lP1 = params[1]
-        ls2ep = params[2]
-        ls2et = params[3]
+        a1, lP1, ls2ep, ls2et = self.get_all_params(params=params)
+
         # s2ep = np.exp(ls2ep)
         # s2et = np.exp(ls2et)
         if self._last_params is None or \
@@ -76,14 +104,12 @@ class LocalLevelModelLogLikeCalculator:
         F = P + np.exp(ls2ep)
         ll = -0.5*(N * np.log(2*np.pi) +
                    np.sum(np.log(F) + (self._y - a)**2 / F))
+        # print(f"params: {params[0]}")
+        # print(f"ll: {ll}")
         return ll
 
     def grad(self, params):
-        # params = [P1,a1,ls2ep,ls2et]
-        a1 = params[0]
-        lP1 = params[1]
-        ls2ep = params[2]
-        ls2et = params[3]
+        a1, lP1, ls2ep, ls2et = self.get_all_params(params=params)
         s2ep = np.exp(ls2ep)
         # s2et = np.exp(ls2et)
         if self._last_params is None or \
@@ -96,32 +122,47 @@ class LocalLevelModelLogLikeCalculator:
         a = self._filter_res[0]
         P = self._filter_res[1]
         v = self._y - a
+        F = P + s2ep
+        grad_dict = {}
         # glP1
-        glP1 = np.sum(
-            -0.5 * (self._grad_filter_res[0, 0, :] / (P + s2ep) -
-                    (-2 * v * self._grad_filter_res[1, 0, :] * (P + s2ep) -
-                     self._grad_filter_res[0, 0, :]) / (P + s2ep)**2)
-        )
+        if "lP1" in self._params_to_estimate:
+            glP1 = -0.5 * np.sum(
+                (self._grad_filter_res[0, 0, :] / F +
+                 (-2 * v * self._grad_filter_res[1, 0, :] * F -
+                  v**2 * self._grad_filter_res[0, 0, :]) / F**2)
+            )
+            grad_dict["lP1"] = glP1
         # gla1
-        gla1 = np.sum(
-            -0.5 * (self._grad_filter_res[0, 1, :] / (P + s2ep) -
-                    (-2 * v * self._grad_filter_res[1, 1, :] * (P + s2ep) -
-                     self._grad_filter_res[0, 1, :]) / (P + s2ep)**2)
-        )
+        if "a1" in self._params_to_estimate:
+            gla1 = -0.5 * np.sum(
+                (self._grad_filter_res[0, 1, :] / F +
+                 (-2 * v * self._grad_filter_res[1, 1, :] * F -
+                  v**2 * self._grad_filter_res[0, 1, :]) / F**2)
+            )
+            grad_dict["la1"] = gla1
         # gls2ep
-        gls2ep = np.sum(
-            -0.5 * ((self._grad_filter_res[0, 2, :] + s2ep) / (P + s2ep) -
-                    (-2 * v * self._grad_filter_res[1, 2, :] * (P + s2ep) -
-                     v**2 * (self._grad_filter_res[0, 2, :] + s2ep)) /
-                    (P + s2ep)**2)
-        )
+        if "ls2ep" in self._params_to_estimate:
+            gls2ep = -0.5 * np.sum(
+                ((self._grad_filter_res[0, 2, :] + s2ep) / F +
+                 (-2 * v * self._grad_filter_res[1, 2, :] * F -
+                  v**2 * (self._grad_filter_res[0, 2, :] + s2ep)) / F**2)
+            )
+            grad_dict["ls2ep"] = gls2ep
         # gls2et
-        gls2et = np.sum(
-            -0.5 * (self._grad_filter_res[0, 3, :] / (P + s2ep) -
-                    (-2 * v * self._grad_filter_res[1, 3, :] * (P + s2ep) -
-                     v**2 * self._grad_filter_res[0, 3, :]) / (P + s2ep)**2)
-        )
-        grad = np.array([glP1, gla1, gls2ep, gls2et])
+        if "ls2et" in self._params_to_estimate:
+            gls2et = -0.5 * np.sum(
+                (self._grad_filter_res[0, 3, :] / F +
+                 (-2 * v * self._grad_filter_res[1, 3, :] * F -
+                  v**2 * self._grad_filter_res[0, 3, :]) / F**2)
+            )
+            grad_dict["ls2et"] = gls2et
+
+        grad_list = []
+        for param_name in self._params_to_estimate:
+            grad_list.append(grad_dict[param_name])
+        grad = np.array(grad_list)
+        # print(f"params: {params[0]}")
+        # print(f"grad: {grad[0]}")
         return grad
 
     def _update_filter_res(self, a1, lP1, ls2ep, ls2et):
