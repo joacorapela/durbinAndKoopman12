@@ -38,13 +38,50 @@ class LocalLevelModelKalmanFilter:
 
     def predictBatch(self, y, a1, P1):
         N = len(y)
-        ats = [None for _ in range(N)]
-        Pts = [None for _ in range(N)]
+        ats = [np.nan for _ in range(N)]
+        Pts = [np.nan for _ in range(N)]
         at = a1
         Pt = P1
         for n, yt in enumerate(y):
             ats[n] = at
             Pts[n] = Pt
+            atgt, Ptgt, _, _, _ = self.update(at=at, Pt=Pt, yt=yt)
+            at, Pt = self.predict(atgt=atgt, Ptgt=Ptgt)
+        return ats, Pts
+
+
+class ReparametrizedLocalLevelModelKalmanFilter:
+    def __init__(self, q):
+        self._q = q
+
+    def predict(self, atgt, Ptgt):
+        atp1 = atgt
+        Ptp1 = Ptgt + self._q
+        return atp1, Ptp1
+
+    def update(self, at, Pt, yt):
+        Ft = Pt + 1.0
+        vt = yt - at
+        if not np.isnan(yt):
+            Kt = Pt / Ft
+            atgt = at + Kt * vt
+        else:
+            Kt = 0.0
+            atgt = at
+        Ptgt = Pt * (1.0 - Kt)
+        return atgt, Ptgt, vt, Ft, Kt
+
+    def predictBatch(self, y):
+        N = len(y)
+        ats = [np.nan for _ in range(N)]
+        Pts = [np.nan for _ in range(N)]
+        a2 = y[0]
+        P2 = 1 + self._q
+        at = a2
+        Pt = P2
+        for n, yt in enumerate(y[1:]):
+            ats[n+1] = at
+            Pts[n+1] = Pt
             atgt, Ptgt, _, _, _ = self.update(at=at, Pt=Pt, yt=yt)
             at, Pt = self.predict(atgt=atgt, Ptgt=Ptgt)
         return ats, Pts
@@ -123,39 +160,43 @@ class LocalLevelModelLogLikeCalculator:
         P = self._filter_res[1]
         v = self._y - a
         F = P + s2ep
+        pPtWRTlP1   = self._grad_filter_res[0, 0, :]
+        pPtWRTa1    = self._grad_filter_res[0, 1, :]
+        pPtWRTls2ep = self._grad_filter_res[0, 2, :]
+        pPtWRTls2et = self._grad_filter_res[0, 3, :]
+        patWRTlP1   = self._grad_filter_res[1, 0, :]
+        patWRTa1    = self._grad_filter_res[1, 1, :]
+        patWRTls2ep = self._grad_filter_res[1, 2, :]
+        patWRTls2et = self._grad_filter_res[1, 3, :]
         grad_dict = {}
         # glP1
         if "lP1" in self._params_to_estimate:
-            glP1 = -0.5 * np.sum(
-                (self._grad_filter_res[0, 0, :] / F +
-                 (-2 * v * self._grad_filter_res[1, 0, :] * F -
-                  v**2 * self._grad_filter_res[0, 0, :]) / F**2)
+            grad_dict["lP1"] = -0.5 * np.sum(
+                (pPtWRTlP1 / F +
+                 (-2 * v * patWRTlP1 * F -
+                  v**2 * pPtWRTlP1) / F**2)
             )
-            grad_dict["lP1"] = glP1
-        # gla1
+        # ga1
         if "a1" in self._params_to_estimate:
-            gla1 = -0.5 * np.sum(
-                (self._grad_filter_res[0, 1, :] / F +
-                 (-2 * v * self._grad_filter_res[1, 1, :] * F -
-                  v**2 * self._grad_filter_res[0, 1, :]) / F**2)
+            grad_dict["a1"] = -0.5 * np.sum(
+                (pPtWRTa1 / F +
+                 (-2 * v * patWRTa1 * F -
+                  v**2 * pPtWRTa1) / F**2)
             )
-            grad_dict["la1"] = gla1
         # gls2ep
         if "ls2ep" in self._params_to_estimate:
-            gls2ep = -0.5 * np.sum(
-                ((self._grad_filter_res[0, 2, :] + s2ep) / F +
-                 (-2 * v * self._grad_filter_res[1, 2, :] * F -
-                  v**2 * (self._grad_filter_res[0, 2, :] + s2ep)) / F**2)
+            grad_dict["ls2ep"] = -0.5 * np.sum(
+                ((pPtWRTls2ep + s2ep) / F +
+                 (-2 * v * patWRTls2ep * F -
+                  v**2 * (pPtWRTls2ep + s2ep)) / F**2)
             )
-            grad_dict["ls2ep"] = gls2ep
         # gls2et
         if "ls2et" in self._params_to_estimate:
-            gls2et = -0.5 * np.sum(
-                (self._grad_filter_res[0, 3, :] / F +
-                 (-2 * v * self._grad_filter_res[1, 3, :] * F -
-                  v**2 * self._grad_filter_res[0, 3, :]) / F**2)
+            grad_dict["ls2et"] = -0.5 * np.sum(
+                (pPtWRTls2et / F +
+                 (-2 * v * patWRTls2et * F -
+                  v**2 * pPtWRTls2et) / F**2)
             )
-            grad_dict["ls2et"] = gls2et
 
         grad_list = []
         for param_name in self._params_to_estimate:
@@ -179,105 +220,140 @@ class LocalLevelModelLogLikeCalculator:
         P = self._filter_res[1]
         F = P + np.exp(ls2et)
         K = P / F
+        v = self._y - a
 
-        # partialPtWRTlP1 = self._grad_filter_res[0, 0, :]
-        # partialPtWRTa1  = self._grad_filter_res[0, 1, :]
-        # partialPtWRTls2ep = self._grad_filter_res[0, 2, :]
-        # partialPtWRTls2et = self._grad_filter_res[0, 3, :]
-        # partialatWRTlP1 = self._grad_filter_res[1, 0, :]
-        # partialatWRTa1  = self._grad_filter_res[1, 1, :]
-        # partialatWRTls2ep = self._grad_filter_res[1, 2, :]
-        # partialatWRTls2et = self._grad_filter_res[1, 3, :]
         self._grad_filter_res = np.empty((2, 4, T), dtype=np.double)
+        pPtWRTlP1 = self._grad_filter_res[0, 0, :]
+        pPtWRTa1  = self._grad_filter_res[0, 1, :]
+        pPtWRTls2ep = self._grad_filter_res[0, 2, :]
+        pPtWRTls2et = self._grad_filter_res[0, 3, :]
+        patWRTlP1 = self._grad_filter_res[1, 0, :]
+        patWRTa1  = self._grad_filter_res[1, 1, :]
+        patWRTls2ep = self._grad_filter_res[1, 2, :]
+        patWRTls2et = self._grad_filter_res[1, 3, :]
 
         grad_F = np.empty((4, T), dtype=np.double)
-        # partialFtWRTlP1 = F[0, :]
-        # partialFtWRTla1 = F[1, :]
-        # partialFtWRTls2ep = F[2, :]
-        # partialFtWRTls2et = F[3, :]
+        pFtWRTlP1 = grad_F[0, :]
+        pFtWRTa1 = grad_F[1, :]
+        pFtWRTls2ep = grad_F[2, :]
+        pFtWRTls2et = grad_F[3, :]
+
         grad_K = np.empty((4, T), dtype=np.double)
-        # partialKtWRTlP1 = K[0, :]
-        # partialKtWRTla1 = K[1, :]
-        # partialKtWRTls2ep = K[2, :]
-        # partialKtWRTls2et = K[3, :]
+        pKtWRTlP1 = grad_K[0, :]
+        pKtWRTa1 = grad_K[1, :]
+        pKtWRTls2ep = grad_K[2, :]
+        pKtWRTls2et = grad_K[3, :]
 
-        self._grad_filter_res[0, 0, 0] = np.exp(lP1)
-        self._grad_filter_res[0, 1, 0] = 0.0
-        self._grad_filter_res[0, 2, 0] = 0.0
-        self._grad_filter_res[0, 3, 0] = 0.0
-        self._grad_filter_res[1, 0, 0] = 0.0
-        self._grad_filter_res[1, 1, 0] = 1.0
-        self._grad_filter_res[1, 2, 0] = 0.0
-        self._grad_filter_res[1, 3, 0] = 0.0
+        pPtWRTlP1[0] = np.exp(lP1)
+        pPtWRTa1[0] = 0.0
+        pPtWRTls2ep[0] = 0.0
+        pPtWRTls2et[0] = 0.0
+        patWRTlP1[0] = 0.0
+        patWRTa1[0] = 1.0
+        patWRTls2ep[0] = 0.0
+        patWRTls2et[0] = 0.0
 
-        grad_K[0, 0] = (np.exp(lP1) * np.exp(ls2ep) /
-                        (np.exp(lP1) + np.exp(ls2ep))**2)
-        grad_K[1, 0] = 0.0
-        grad_K[2, 0] = (-np.exp(lP1) * np.exp(ls2ep) /
-                        (np.exp(lP1) + np.exp(ls2ep)**2))
-        grad_K[3, 0] = 0.0
+        pKtWRTlP1[0] = np.exp(lP1) * np.exp(ls2ep) / \
+            (np.exp(lP1) + np.exp(ls2ep))**2
+        pKtWRTa1[0] = 0.0
+        pKtWRTls2ep[0] = -np.exp(lP1) * np.exp(ls2ep) / \
+            (np.exp(lP1) + np.exp(ls2ep))**2
+        pKtWRTls2et[0] = 0.0
 
-        grad_F[0, 0] = np.exp(lP1)
-        grad_F[1, 0] = 0.0
-        grad_F[2, 0] = np.exp(ls2ep)
-        grad_F[3, 0] = 0.0
+        pFtWRTlP1[0] = np.exp(lP1)
+        pFtWRTa1[0] = 0.0
+        pFtWRTls2ep[0] = np.exp(ls2ep)
+        pFtWRTls2et[0] = 0.0
 
         for t in range(1, T):
             # grad Pt wrt lP1
-            self._grad_filter_res[0, 0, t] = \
-                self._grad_filter_res[0, 0, t-1] * (1 - K[t-1]) - \
-                P[t-1] * grad_K[0, t-1]
+            pPtWRTlP1[t] = \
+                pPtWRTlP1[t-1] * (1 - K[t-1]) - \
+                P[t-1] * pKtWRTlP1[t-1]
             # grad Pt wrt a1
-            self._grad_filter_res[0, 1, t] = \
-                self._grad_filter_res[0, 1, t-1] * (1 - K[t-1]) - \
-                P[t-1] * grad_K[1, t-1]
+            pPtWRTa1[t] = \
+                pPtWRTa1[t-1] * (1 - K[t-1]) - \
+                P[t-1] * pKtWRTa1[t-1]
             # grad Pt wrt ls2ep
-            self._grad_filter_res[0, 2, t] = \
-                self._grad_filter_res[0, 2, t-1] * (1 - K[t-1]) - \
-                P[t-1] * grad_K[2, t-1]
+            pPtWRTls2ep[t] = \
+                pPtWRTls2ep[t-1] * (1 - K[t-1]) - \
+                P[t-1] * pKtWRTls2ep[t-1]
             # grad Pt wrt ls2et
-            self._grad_filter_res[0, 3, t] = \
-                self._grad_filter_res[0, 3, t-1] * (1 - K[t-1]) - \
-                P[t-1] * grad_K[3, t-1] + np.exp(ls2et)
+            pPtWRTls2et[t] = \
+                pPtWRTls2et[t-1] * (1 - K[t-1]) - \
+                P[t-1] * pKtWRTls2et[t-1] + np.exp(ls2et)
 
             # grad at wrt lP1
-            self._grad_filter_res[1, 0, t] = \
-                self._grad_filter_res[1, 0, t-1] * (1 - K[t-1]) + \
-                grad_K[0, t-1] * (self._y[t-1] * a[t-1])
+            patWRTlP1[t] = \
+                patWRTlP1[t-1] * (1 - K[t-1]) + \
+                pKtWRTlP1[t-1] * v[t-1]
             # grad at wrt a1
-            self._grad_filter_res[1, 1, t] = \
-                self._grad_filter_res[1, 1, t-1] * (1 - K[t-1]) + \
-                grad_K[1, t-1] * (self._y[t-1] * a[t-1])
+            patWRTa1[t] = \
+                patWRTa1[t-1] * (1 - K[t-1]) + \
+                pKtWRTa1[t-1] * v[t-1]
             # grad at wrt ls2ep
-            self._grad_filter_res[1, 2, t] = \
-                self._grad_filter_res[1, 2, t-1] * (1 - K[t-1]) + \
-                grad_K[2, t-1] * (self._y[t-1] * a[t-1])
+            patWRTls2ep[t] = \
+                patWRTls2ep[t-1] * (1 - K[t-1]) + \
+                pKtWRTls2ep[t-1] * v[t-1]
             # grad at wrt ls2et
-            self._grad_filter_res[1, 3, t] = \
-                self._grad_filter_res[1, 3, t-1] * (1 - K[t-1]) + \
-                grad_K[3, t-1] * (self._y[t-1] * a[t-1])
+            patWRTls2et[t] = \
+                patWRTls2et[t-1] * (1 - K[t-1]) + \
+                pKtWRTls2et[t-1] * v[t-1]
 
             # grad Ft wrt lP1
-            grad_F[0, t] = self._grad_filter_res[0, 0, t]
+            pFtWRTlP1[t] = pPtWRTlP1[t]
             # grad Ft wrt a1
-            grad_F[1, t] = self._grad_filter_res[0, 1, t]
+            pFtWRTa1[t] = pPtWRTa1[t]
             # grad Ft wrt ls2ep
-            grad_F[2, t] = self._grad_filter_res[0, 2, t] + np.exp(ls2ep)
+            pFtWRTls2ep[t] = pPtWRTls2ep[t] + np.exp(ls2ep)
             # grad Ft wrt ls2et
-            grad_F[3, t] = self._grad_filter_res[0, 3, t]
+            pFtWRTls2et[t] = pPtWRTls2et[t]
 
             # grad Kt wrt lP1
-            grad_K[0, t] = (self._grad_filter_res[0, 0, t] * F[t] -
-                            P[t] * grad_F[0, t]) / F[t]**2
+            pKtWRTlP1[t] = (pPtWRTlP1[t] * F[t] -
+                            P[t] * pFtWRTlP1[t]) / F[t]**2
             # grad Kt wrt a1
-            grad_K[1, t] = (self._grad_filter_res[0, 1, t] * F[t] -
-                            P[t] * grad_F[1, t]) / F[t]**2
+            pKtWRTa1[t] = (pPtWRTa1[t] * F[t] -
+                           P[t] * pFtWRTa1[t]) / F[t]**2
             # grad Kt wrt ls2ep
-            grad_K[2, t] = (self._grad_filter_res[0, 2, t] * F[t] -
-                            P[t] * grad_F[2, t]) / F[t]**2
+            pKtWRTls2ep[t] = (pPtWRTls2ep[t] * F[t] -
+                              P[t] * pFtWRTls2ep[t]) / F[t]**2
             # grad Kt wrt ls2et
-            grad_K[3, t] = (self._grad_filter_res[0, 3, t] * F[t] -
-                            P[t] * grad_F[3, t]) / F[t]**2
+            pKtWRTls2et[t] = (pPtWRTls2et[t] * F[t] -
+                              P[t] * pFtWRTls2et[t]) / F[t]**2
+
+
+class ReparametrizedLocalLevelModelLogLikeCalculator:
+
+    def __init__(self, y):
+        self._y = y
+        self._last_params = None
+
+    def ll(self, params):
+        lq = params[0]
+
+        if self._last_params is None or \
+           not np.array_equal(a1=self._last_params, a2=params):
+            self._last_params = params.copy()
+            self._update_filter_res(lq=lq)
+        a = self._filter_res[0]
+        P = self._filter_res[1]
+        N = len(self._y)
+        F = np.array(P) + 1.0
+        v = self._y - a
+        ls2ep = np.log(1.0 / (N-1) * np.sum(v[1:]**2 / F[1:]))
+        ll = -0.5*(N * np.log(2*np.pi) + (N-1) / 2.0 +
+                   (N-1) / 2.0 * ls2ep + np.sum(F[1:]))
+        # print(f"params: {params[0]}")
+        # print(f"ll: {ll}")
+        return ll
+
+    def _update_filter_res(self, lq):
+        llmKF = ReparametrizedLocalLevelModelKalmanFilter(
+            q=np.exp(lq),
+        )
+        self._filter_res = llmKF.predictBatch(y=self._y)
+
 
 
 class LocalLevelModelSimulator:
