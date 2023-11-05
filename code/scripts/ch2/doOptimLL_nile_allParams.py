@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.optimize
 
 sys.path.append("../../src")
-import tsa
+import llm
 
 
 def main(argv):
@@ -51,7 +51,7 @@ def main(argv):
 
     params_to_estimate = ["a1", "lP1", "ls2ep", "ls2et"]
     params0 = [a10, lP10, ls2ep0, ls2et0]
-    llmLLcalc = tsa.LocalLevelModelLogLikeCalculator(
+    llmLLcalc = llm.LogLikeCalculator(
         y=y, params_to_estimate=params_to_estimate,
         fixed_params_values={})
     options = {"gtol": 1e-10, "maxiter": maxiter, "disp": disp}

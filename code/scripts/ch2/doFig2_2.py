@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 sys.path.append("../../src")
-import tsa
+import llm
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -42,8 +42,7 @@ def main(argv):
     atgt = filtering_results["atgt"]
     Ptgt = filtering_results["Ptgt"]
 
-    llmKF = tsa.LocalLevelModelKalmanFilter(sigma2Epsilon=sigma2Epsilon,
-                                            sigma2Eta=sigma2Eta)
+    llmKF = llm.KalmanFilter(sigma2Epsilon=sigma2Epsilon, sigma2Eta=sigma2Eta)
     alphaHat, Vt = llmKF.smooth(at=at, Pt=Pt, atgt=atgt, Ptgt=Ptgt)
     smoothed_means = alphaHat
     smoothed_vars = Vt

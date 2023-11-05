@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 sys.path.append("../../src")
-import tsa
+import llm
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -58,8 +58,7 @@ def main(argv):
     innovation_variances = []
     kalman_gains = []
 
-    llmKF = tsa.LocalLevelModelKalmanFilter(sigma2Epsilon=sigma2Epsilon,
-                                            sigma2Eta=sigma2Eta)
+    llmKF = llm.KalmanFilter(sigma2Epsilon=sigma2Epsilon, sigma2Eta=sigma2Eta)
     for measurement in measurements:
         predicted_means.append(predicted_mean)
         predicted_vars.append(predicted_var)

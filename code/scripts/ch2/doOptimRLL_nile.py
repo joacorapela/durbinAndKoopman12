@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.optimize
 
 sys.path.append("../../src")
-import tsa
+import rllm
 
 
 def main(argv):
@@ -36,7 +36,7 @@ def main(argv):
     disp = True
     method = "BFGS"
 
-    llmLLcalc = tsa.ReparametrizedLocalLevelModelLogLikeCalculator(
+    llmLLcalc = rllm.LogLikeCalculator(
         y=y)
     options = {"gtol": 1e-10, "maxiter": maxiter, "disp": disp}
 
@@ -62,7 +62,7 @@ def main(argv):
     ll = -optim_res.fun
     q = np.exp(optim_res.x[0])
 
-    llmKF = tsa.ReparametrizedLocalLevelModelKalmanFilter(
+    llmKF = rllm.KalmanFilter(
             q=q,
     )
     filter_res = llmKF.predictBatch(y=y)

@@ -8,7 +8,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 sys.path.append("../../src")
-import tsa
+import llm
 
 
 def main(argv):
@@ -47,7 +47,7 @@ def main(argv):
     sim_res_config_filename_pattern = args.sim_res_config_filename_pattern
     sim_res_filename_pattern = args.sim_res_filename_pattern
 
-    llm_simulator = tsa.LocalLevelModelSimulator()
+    llm_simulator = llm.Simulator()
     y, alpha = llm_simulator.simulate(sigma_epsilon=sigma_epsilon,
                                       sigma_eta=sigma_eta, a1=a1, P1=P1, N=N)
     sim_res = {"alpha": alpha, "y": y}
