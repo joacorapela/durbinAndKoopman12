@@ -84,8 +84,7 @@ def main(argv):
         return -llmLLcalc.grad(x)
 
     optim_res = scipy.optimize.minimize(fun=fun, x0=params0,
-                                        # method=method, jac=grad,
-                                        method="BFGS",
+                                        method=method, jac=grad,
                                         options=options, callback=callback)
     print(optim_res)
 
