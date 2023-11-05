@@ -7,7 +7,7 @@ import plotly.figure_factory as ff
 import plotly.graph_objects as go
 
 sys.path.append("../../src")
-import tsa
+import llm
 
 
 def main(argv):
@@ -61,7 +61,7 @@ def main(argv):
         sim_res = pickle.load(f)
     y = sim_res["y"]
 
-    llmLLcalc = tsa.LocalLevelModelLogLikeCalculator(y=y)
+    llmLLcalc = llm.LogLikeCalculator(y=y)
 
     a1s = np.linspace(-1.0, 1.0, 100)
     lP1s = np.log(np.linspace(1.0, 200.0, 100))
