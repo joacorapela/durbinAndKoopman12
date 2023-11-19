@@ -23,6 +23,27 @@ class KalmanFilter:
         Ptgt = Pt * (1.0 - Kt)
         return atgt, Ptgt, vt, Ft, Kt
 
+    def update(self, at, Pt, yt):
+        Ft = Pt + self._sigma2Epsilon
+        vt = yt - at
+        if not np.isnan(yt):
+            Kt = Pt / Ft
+            atgt = at + Kt * vt
+        else:
+            Kt = 0.0
+            atgt = at
+        Ptgt = Pt * (1.0 - Kt)
+        return atgt, Ptgt, vt, Ft, Kt
+
+    def updateSS(self, at, Kss, yt):
+        vt = yt - at
+        if not np.isnan(yt):
+            atgt = at + Kss * vt
+        else:
+            Kss = 0.0
+            atgt = at
+        return atgt, vt
+
     def smooth(self, at, Pt, atgt, Ptgt):
         N = len(at)
         alphaHat = np.empty(N)
@@ -46,6 +67,33 @@ class KalmanFilter:
             Pts[n] = Pt
             atgt, Ptgt, _, _, _ = self.update(at=at, Pt=Pt, yt=yt)
             at, Pt = self.predict(atgt=atgt, Ptgt=Ptgt)
+        return ats, Pts
+
+    def steadyStatePredictBatch(self, y, a1, P1, varSimThr=1e-4):
+        q = self._sigma2Eta / self._sigma2Epsilon
+        x = (q + np.sqrt(q**2 + 4*q)) / 2.0
+        Pss = x * self._sigma2Epsilon
+        Kss = Pss / (Pss + self._sigma2Epsilon)
+
+        N = len(y)
+        ats = [np.nan for _ in range(N)]
+        Pts = [np.nan for _ in range(N)]
+        at = a1
+        Pt = P1
+        t = 0
+        while np.abs(Pt - Pss) > varSimThr and t < len(y):
+            yt = y[t]
+            ats[t] = at
+            Pts[t] = Pt
+            atgt, Ptgt, _, _, _ = self.update(at=at, Pt=Pt, yt=yt)
+            at, Pt = self.predict(atgt=atgt, Ptgt=Ptgt)
+            t += 1
+        while t < len(y):
+            yt = y[t]
+            ats[t] = at
+            Pts[t] = Pss
+            at, _ = self.updateSS(at=at, Kss=Kss, yt=yt)
+            t += 1
         return ats, Pts
 
 
