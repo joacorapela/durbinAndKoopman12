@@ -12,7 +12,7 @@ import llm
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--sim_res_number", type=int,
-                        help="simulation result number", default=16347168)
+                        help="simulation result number", default=65029069)
     parser.add_argument("--a10", type=float,
                         help="initial condition for initial state mean",
                         default=0.0)
@@ -72,9 +72,10 @@ def main(argv):
         # print("LL(ls2ep={:.02f}, ls2et={:.02f})".format(
         #     intermediate_result[0],
         #     intermediate_result[1]))
-        print("LL(ls2ep={:.02f}, ls2et={:.02f})".format(
+        print("LL(ls2ep={:.02f}, ls2et={:.02f})={:.04f}".format(
             intermediate_result[0],
             intermediate_result[1],
+            llmLLcalc.ll(intermediate_result),
         ))
 
     def fun(x):
