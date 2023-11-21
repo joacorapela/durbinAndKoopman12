@@ -58,11 +58,12 @@ def main(argv):
 
     def callback(intermediate_result: scipy.optimize.OptimizeResult):
         print("LL(a1={:.02f}, lP1={:.02f}, ls2ep={:.02f}, "
-              "ls2et={:.02f})".format(
+              "ls2et={:.02f})={:.04f}".format(
                   intermediate_result[0],
                   intermediate_result[1],
                   intermediate_result[2],
                   intermediate_result[3],
+                  llmLLcalc.ll(intermediate_result),
               ))
 
     def fun(x):
