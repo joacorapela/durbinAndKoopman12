@@ -80,7 +80,7 @@ def main(argv):
                      "vt": innovations, "Ft": innovation_variances,
                      "Kt": kalman_gains}, f)
 
-    # plot
+    # plot (i)
     fig = go.Figure()
     trace_data = go.Scatter(x=years, y=measurements, name="measurement",
                             mode="markers", marker_color="black")
@@ -113,6 +113,7 @@ def main(argv):
     fig.write_html(html_filename)
     fig.show()
 
+    # plot (ii)
     fig = go.Figure()
     trace_filterd_var = go.Scatter(x=years, y=predicted_vars,
                                    name="state variance", mode="lines",
@@ -129,6 +130,7 @@ def main(argv):
     fig.write_html(html_filename)
     fig.show()
 
+    # plot (iii)
     fig = go.Figure()
     trace_innovations = go.Scatter(x=years, y=innovations,
                                    name="innovations", mode="lines",
@@ -145,6 +147,7 @@ def main(argv):
     fig.write_html(html_filename)
     fig.show()
 
+    # plot (iv)
     fig = go.Figure()
     trace_innovations = go.Scatter(x=years, y=innovation_variances,
                                    mode="lines",
