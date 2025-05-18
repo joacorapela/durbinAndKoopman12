@@ -15,7 +15,8 @@ def main(argv):
     parser.add_argument("--sim_res_number", type=int,
                         # help="simulation result number", default=372651)
                         # help="simulation result number", default=27465920)
-                        help="simulation result number", default=16347168)
+                        # help="simulation result number", default=65029069)
+                        help="simulation result number", default=65029069)
     parser.add_argument("--a1", type=float,
                         help="initial condition for initial state mean",
                         default=0.0)
