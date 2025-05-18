@@ -1,0 +1,53 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{theorem}
+
+\newtheorem{theorem}{Theorem}
+
+\title{Conditional distribution for jointly normal Gaussian random variables}
+\author{Joaquín Rapela}
+
+\begin{document}
+
+\maketitle
+
+\begin{theorem}
+
+    Let $\mathbf{x}$ and $\mathbf{y}$ be jointly normally-distributed random
+    vectors with
+
+    \begin{align*}
+        E\left\{\left(\begin{array}{c}
+                          \mathbf{x}\\
+                          \mathbf{y}
+                      \end{array}\right)\right\}&=\left(\begin{array}{c}
+                                                           \boldsymbol{\mu}_x\\
+                                                           \boldsymbol{\mu}_y
+                                                       \end{array}\right)\\
+        \text{Cov}\left\{\left(\begin{array}{c}
+                                   \mathbf{x}\\
+                                   \mathbf{y}
+                               \end{array}\right)\right\}&=\left(\begin{array}{cc}
+                                                                     \Sigma_{xx} & \Sigma_{xy} \\
+                                                                     \Sigma_{yx} & \Sigma_{yy} \\
+                                                                  \end{array}\right)
+    \end{align*}
+
+    \noindent where $\Sigma_{yy}$ is assumed to be non-singular.
+    %
+    Then the conditional distribution of $\mathbf{x}$ given $\mathbf{y}$ is
+    normal with mean vector
+
+    \begin{align*}
+        \text{E}\{\mathbf{x}|\mathbf{y}\}=\boldsymbol{\mu}_x+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)
+    \end{align*}
+
+    \noindent and covariance matrix
+
+    \begin{align*}
+        \text{Cov}\{\mathbf{x}|\mathbf{y}\}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}
+    \end{align*}
+\end{theorem}
+
+\end{document}
