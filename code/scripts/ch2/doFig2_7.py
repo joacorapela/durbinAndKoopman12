@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import sklearn.neighbors import KernelDensity
+import sklearn.neighbors
 import scipy
 
 sys.path.append("../../src")
