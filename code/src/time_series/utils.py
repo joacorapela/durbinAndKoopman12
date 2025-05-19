@@ -39,7 +39,7 @@ def kurtosis(ets, compute_pvalue=False):
     N = len(ets)
     m4 = moment(x=ets, order=4)
     m2 = moment(x=ets, order=2)
-    stat = m4 / np.sqrt(m2**2)
+    stat = m4 / m2**2
     if compute_pvalue:
         # K ~ N(3, 24/N)
         stat_mean = 3.0
