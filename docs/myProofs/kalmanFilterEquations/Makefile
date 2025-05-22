@@ -1,6 +1,9 @@
-all: conditionalDistForGaussianRVs.pdf
+all: kalmanFilterEqsDerivation.pdf
 
-%.pdf: %.tex
-	pdflatex $<
+kalmanFilterEqsDerivation.pdf: kalmanFilterEqsDerivation.tex
+	pdflatex kalmanFilterEqsDerivation.tex
+	bibtex kalmanFilterEqsDerivation.aux
+	pdflatex kalmanFilterEqsDerivation.tex
+	pdflatex kalmanFilterEqsDerivation.tex
 
 
