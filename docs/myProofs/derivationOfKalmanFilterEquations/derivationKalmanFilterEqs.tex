@@ -49,7 +49,7 @@
         P_{t|t-1}&=A_{t-1}P_{t-1|t-1}A_{t-1}^\intercal+Q_{t-1}\\
         \hat{\mathbf{y}}_{t|t-1}&=B_t\mathbf{x}_{t|t-1}\\
         \mathbf{z}_t&=\mathbf{y}_t-\hat{\mathbf{y}}_{t|t-1}\\
-        S_t&=\text{Cov}(\{\mathbf{z}_t\}|\mathbf{y}_1,\ldots,\mathbf{y}_{t-1})=B_tP_{t|t-1}B_t^\intercal+R_t\\
+        S_t&=\text{Cov}\{\mathbf{z}_t|\mathbf{y}_1,\ldots,\mathbf{y}_{t-1}\}=B_tP_{t|t-1}B_t^\intercal+R_t\\
         \mathbf{x}_{t|t}&=\mathbf{x}_{t|t-1}+K_t\mathbf{z}_t\\
         \mathbf{P}_{t|t}&=(I-K_tB_t)P_{t|t-1}\\
         \mathbf{K}_t&=P_{t|t-1}B_t^\intercal S_t^{-1}\\
@@ -59,24 +59,91 @@
     \label{thm:kalmanFilterEqs}
 \end{theorem}
 
-The following proof adds a few more details to that given in Section 4.3.1 of
+The following proof adds a few details to that given in Section 4.3.1 of
 \citet{durbinAndKoopman12}.
 
 \begin{proof}
     Call $Y_t=\{\mathbf{y}_1,\ldots,\mathbf{y}_t\}$, then
 
     \begin{align}
-        \mathbf{x}_{t|t-1}&=E\{\mathbf{x}_t|Y_{t-1}\}=E\{A_{t-1}\mathbf{x}_{t-1}+\mathbf{w}_{t-1}|Y_{t-1}\}\nonumber\\
-                          &=A_{t-1}E\{\mathbf{x}_{t-1}|Y_{t-1}\}+E\{\mathbf{w}_{t-1}|Y_{t-1}\}\nonumber\\
-                          &=A_{t-1}\mathbf{x}_{t-1|t-1}+E\{\mathbf{w}_{t-1}\}=A_{t-1}\mathbf{x}_{t-1|t-1}\label{eq:p1n1}
+        \mathbf{x}_{t|t-1}=&E\{\mathbf{x}_t|Y_{t-1}\}=E\{A_{t-1}\mathbf{x}_{t-1}+\mathbf{w}_{t-1}|Y_{t-1}\}\nonumber\\
+                          =&A_{t-1}E\{\mathbf{x}_{t-1}|Y_{t-1}\}+E\{\mathbf{w}_{t-1}|Y_{t-1}\}\nonumber\\
+                          =&A_{t-1}\mathbf{x}_{t-1|t-1}+E\{\mathbf{w}_{t-1}\}=A_{t-1}\mathbf{x}_{t-1|t-1}\label{eq:p1n1}\\
+        % \mathbf{P}_{t|t-1}&=\text{Cov}\{\mathbf{x}_t|Y_{t-1}\}=E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(\mathbf{x}_t-\mathbf{x}_{t|t-1}|Y_{t-1)^\intercal|Y_{t-1}\}
+        \mathbf{P}_{t|t-1}=&\text{Cov}\{\mathbf{x}_t|Y_{t-1}\}=E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(\mathbf{x}_t-\mathbf{x}_{t|t-1})^\intercal|Y_{t-1}\}\nonumber\\
+                          =&E\{\left(A_{t-1}\mathbf{x}_{t-1}+w_{t-1}-A_{t-1}\mathbf{x}_{t-1|t-1}\right)\left(A_{t-1}\mathbf{x}_{t-1}+w_{t-1}-A_{t-1}\mathbf{x}_{t-1|t-1}\right)^\intercal|Y_{t-1}\}\nonumber\\
+                          =&E\{\left(A_{t-1}(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})+w_{t-1}\right)\left(A_{t-1}(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})+w_{t-1}\right)^\intercal|Y_{t-1}\}\nonumber\\
+                          =&A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal+\nonumber\\
+                           &E\{w_{t-1}(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal+\nonumber\\
+                           &A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})w_{t-1}^\intercal|Y_{t-1}\}+\nonumber\\
+                           &E\{w_{t-1}w_{t-1}^\intercal|Y_{t-1}\}\nonumber\\
+                          =&A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal+\nonumber\\
+                           &E\{w_{t-1}|Y_{t-1}\}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal+\nonumber\\
+                           &A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})|Y_{t-1}\}E\{w_{t-1}^\intercal|Y_{t-1}\}+\nonumber\\
+                           &E\{w_{t-1}w_{t-1}^\intercal\}\label{eq:p1n2}\\
+                          =&A_{t-1}P_{t-1|t-1}A_{t-1}^\intercal+Q_{t-1}\label{eq:p1n3}
     \end{align}
 
+    Because
+
+    \begin{align}
+        \mathbf{z}_t=&\mathbf{y}_t-\hat{\mathbf{y}}_{t|t-1}\label{eq:zt}\\
+                    =&\mathbf{y}_t-E\{\mathbf{y}_t|Y_{t-1}\}=B_t\mathbf{x}_t+\mathbf{v}_t-E\{B_t\mathbf{x}_t+\mathbf{v}_t|Y_{t-1}\}\nonumber\\
+                    =&B_t\mathbf{x}_t+\mathbf{v}_t-B_tE\{\mathbf{x}_t|Y_{t-1}\}+E\{\mathbf{v}_t|Y_{t-1}\}\nonumber\\
+                    =&B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\label{eq:zt2}
+    \end{align}
+
+    \noindent $Y_{t-1}$ and $\mathbf{z}_t$ are fixed if and only if $Y_t$ is
+    fixed\footnote{If we now $Y_{t-1}$ and $\mathbf{z}_t$, then we know
+    $\hat{\mathbf{y}}_{t|t-1}$ and $\mathbf{z}_t$, then (by Eq.~\ref{eq:zt}) we
+    know $\mathbf{y}_t$, thus we know $Y_t$. Also, if we know $Y_t$, we know
+    $\hat{\mathbf{y}}_{t|t-1}$ and $\mathbf{y}_t$ and (by Eq.~\ref{eq:zt}) we
+    know $\mathbf{z}_t$.}. Then
+
+    \begin{align}
+        \mathbf{x}_{t|t}=&E\{\mathbf{x}_t|Y_t\}=E\{\mathbf{x}_t|Y_{t-1},\mathbf{z}_t\}\nonumber\\
+                        =&E\{\mathbf{x}_t|Y_{t-1}\}+\text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)\text{Cov}\left(\mathbf{z}_t|Y_{t-1}\right)^{-1}\mathbf{z}_t\label{eq:xtGtTmp}\\
+        \text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)=&\text{Cov}\left(\mathbf{x}_t,B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t|Y_{t-1}\right)\nonumber\\
+                                                                =&E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t)^\intercal|Y_{t-1}\}\nonumber\\
+                                                                =&E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(\mathbf{x}_t-\mathbf{x}_{t|t-1})^\intercal|Y_{t-1}\}B_t^\intercal\nonumber\\
+                                                                 &+E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})\mathbf{v}_t^\intercal|Y_{t-1}\}\nonumber\\
+                                                                =&P_{t|t-1}B_t^\intercal\label{eq:covXZ}\\
+        S_t=\text{Cov}\left(\mathbf{z}_t|Y_{t-1}\right)=&E\{\mathbf{z}_t\mathbf{z}_t^\intercal|Y_{t-1}\}\nonumber\\
+                                                       =&E\{\left(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\right)\left(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\right)^\intercal|Y_{t-1}\}\nonumber\\
+                                                       =&B_tE\{\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)^\intercal|Y_{t-1}\}B_t^\intercal\nonumber\\
+                                                        &+E\{\mathbf{v}_t\mathbf{v_t}^\intercal|Y_{t-1}\}\nonumber\\
+                                                       =&B_tP_{t|t-1}B_t^\intercal+R_t\label{eq:covZ}
+    \end{align}
+
+    Combining Eqs.~\ref{eq:xtGtTmp}, \ref{eq:covXZ} and~\ref{eq:covZ} we obtain
+
+    \begin{align}
+        \mathbf{x}_{t|t}=&\mathbf{x}_{t|t-1}+P_{t|t-1}B_t^\intercal
+        S_t^{-1}\mathbf{z}_t\nonumber\\
+                        =&\mathbf{x}_{t|t-1}+K_t\mathbf{z}_t\nonumber\\
+                     with&\nonumber\\
+                    K_t=&P_{t|t-1}B_t^\intercal S_t^{-1}\nonumber
+    \end{align}
 \end{proof}
 
 Notes:
 \begin{enumerate}
     \item the first equality in Eq.~\ref{eq:p1n1} holds because
         $\mathbf{w}_{t-1}$ is independent of $Y_{t-1}$.
+    \item the second and third terms in Eq.~\ref{eq:p1n2} hold because
+        $w_{t-1}$ is independent of $x_{t-1}$ given $Y_{t-1}$.
+    \item Eq.~\ref{eq:p1n3} holds because
+        $E\{\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1}|Y_{t-1}\}=0$.
+    \item the last equality in Eq.~\ref{eq:xtGtTmp} follows from
+        Lemma~\ref{lemma:conditionalGaussians}
+    \item the last equality in Eq.~\ref{eq:covXZ} holds because $\mathbf{x}_t$
+        in independent (and therefore uncorrelated) of $\mathbf{v}_t$.
+    \item the second equality of Eq.~\ref{eq:covZ} uses Eq.~\ref{eq:zt2}.
+    \item the third equality of Eq.~\ref{eq:covZ} holds because $\mathbf{x}_t$
+        is independent of $\mathbf{v}_t$ given $Y_{t-1}$.
+    \item the last equality of Eq.~\ref{eq:covZ} holds because $\mathbf{v}_t$
+        is independent of $Y_{t-1}$.
+
 \end{enumerate}
 
 \begin{figure}
