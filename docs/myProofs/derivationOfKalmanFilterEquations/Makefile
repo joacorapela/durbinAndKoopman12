@@ -1,9 +1,9 @@
-all: kalmanFilterEqsDerivation.pdf
+all: derivationKalmanFilterEqs.pdf
 
-kalmanFilterEqsDerivation.pdf: kalmanFilterEqsDerivation.tex
-	pdflatex kalmanFilterEqsDerivation.tex
-	bibtex kalmanFilterEqsDerivation.aux
-	pdflatex kalmanFilterEqsDerivation.tex
-	pdflatex kalmanFilterEqsDerivation.tex
+derivationKalmanFilterEqs.pdf: derivationKalmanFilterEqs.tex
+	pdflatex derivationKalmanFilterEqs.tex
+	bibtex derivationKalmanFilterEqs.aux
+	pdflatex derivationKalmanFilterEqs.tex
+	pdflatex derivationKalmanFilterEqs.tex
 
 
