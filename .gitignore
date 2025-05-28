@@ -12,3 +12,4 @@ results/
 data/
 __pycache__/
 figures/
+docs/myProofs/derivationOfKalmanFilterEquations/todo.md
