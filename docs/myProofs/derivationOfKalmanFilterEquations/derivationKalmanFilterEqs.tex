@@ -22,6 +22,14 @@
 
 \maketitle
 
+\begin{figure}[h]
+    \centering
+    \input{figLDS}
+    \caption{Graphical models for our linear dynamical system in
+    Theorem~\ref{thm:kalmanFilterEqs}.}
+    \label{fig:ldsModel}
+\end{figure}
+
 \begin{theorem}
 	\label{thm:kalmanFilterEqs}
 
@@ -108,7 +116,7 @@ The following proof adds a few details to that given in Section 4.3.1 of
     the first equality in Eq.~\ref{eq:ztProof}) we know $\mathbf{z}_t$.}. Then
 
     \begin{align}
-        \mathbf{x}_{t|t}&=E\{\mathbf{x}_t|Y_t\}=E\{\mathbf{x}_t|Y_{t-1},\mathbf{z}_t\}\nonumber\\
+        \mathbf{x}_{t|t}&=E\{\mathbf{x}_t|Y_t\}=E\{\mathbf{x}_t|Y_{t-1},\mathbf{z}_t\}\label{eq:measureTheoryEq}\\
                         &=E\{\mathbf{x}_t|Y_{t-1}\}+\text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)\text{Cov}\left(\mathbf{z}_t|Y_{t-1}\right)^{-1}\mathbf{z}_t\label{eq:xtGtTmp}\\
         \text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)&=\text{Cov}\left(\mathbf{x}_t,B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t|Y_{t-1}\right)\nonumber\\
                                                                 &=E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t)^\intercal|Y_{t-1}\}\nonumber\\
@@ -159,6 +167,8 @@ Notes:
         $w_{t-1}$ is independent of $x_{t-1}$ given $Y_{t-1}$.
     \item Eq.~\ref{eq:p1n3} holds because
         $E\{\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1}|Y_{t-1}\}=0$.
+    \item the validity of Eq.~\ref{eq:measureTheoryEq} follows from measure
+        theory concepts that I don't really know.
     \item the last equality in Eq.~\ref{eq:xtGtTmp} follows from Eq.~\ref{eq:conditionalMean} in
         Lemma~\ref{lemma:conditionalGaussians}
     \item the last equality in Eq.~\ref{eq:covXZ} holds because $\mathbf{x}_t$
@@ -183,13 +193,7 @@ Notes:
 
 \end{enumerate}
 
-\begin{figure}
-    \centering
-    \input{figLDS}
-    \caption{Graphical models for our linear dynamical system in
-    Theorem~\ref{thm:kalmanFilterEqs}.}
-    \label{fig:ldsModel}
-\end{figure}
+\pagebreak
 
 \input{conditionalDistForGaussianRVs}
 
