@@ -4,20 +4,20 @@
     vectors with
 
     \begin{align}
-        E\left\{\left(\begin{array}{c}
+        E\left\{\left[\begin{array}{c}
                           \mathbf{x}\\
                           \mathbf{y}
-                      \end{array}\right)\right\}&=\left(\begin{array}{c}
+                      \end{array}\right]\right\}&=\left[\begin{array}{c}
                                                            \boldsymbol{\mu}_x\\
                                                            \boldsymbol{\mu}_y
-                                                       \end{array}\right)\label{eq:conditionaMean}\\
-        \text{Cov}\left\{\left(\begin{array}{c}
+                                                       \end{array}\right]\label{eq:conditionaMean}\\
+        \text{Cov}\left\{\left[\begin{array}{c}
                                    \mathbf{x}\\
                                    \mathbf{y}
-                               \end{array}\right)\right\}&=\left(\begin{array}{cc}
+                               \end{array}\right]\right\}&=\left[\begin{array}{cc}
                                                                      \Sigma_{xx} & \Sigma_{xy} \\
                                                                      \Sigma_{yx} & \Sigma_{yy} \\
-                                                                  \end{array}\right)\label{eq:conditionalCov}
+                                                                  \end{array}\right]\label{eq:conditionalCov}
     \end{align}
 
     \noindent where $\Sigma_{yy}$ is assumed to be non-singular.
@@ -81,15 +81,15 @@
                                            &=\text{Cov}\{\mathbf{z}\}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}\nonumber
     \end{align}
 
-    Notes:
-
-    \begin{enumerate}
-
-        \item The last equality in Eq.~\ref{eq:note1} holds because, when
-            conditioning on $\mathbf{y}$, the term
-            $\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)$ is a
-            constant, and constants are irrelevant when computing covariances.
-
-    \end{enumerate}
-
 \end{proof}
+
+Notes:
+
+\begin{enumerate}
+
+    \item The last equality in Eq.~\ref{eq:note1} holds because, when
+        conditioning on $\mathbf{y}$, the term
+        $\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)$ is a
+        constant, and constants are irrelevant when computing covariances.
+
+\end{enumerate}
