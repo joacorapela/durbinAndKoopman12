@@ -40,46 +40,112 @@
                                     \left[\begin{array}{c}
                                         \mathbf{x}\\
                                         \mathbf{y}
-                                    \end{array}\right]+K_2
+                                    \end{array}\right]+K_2\label{eq:completingSquares1}
     \end{align}
 
-    \noindent where $K$ is a contant that does not depend on $\mathbf{x}$ or
+    \noindent where $K_1$ and $K_2$ are contants that does not depend on $\mathbf{x}$ or
     $\mathbf{y}$.
 
     Because $\ln p(\mathbf{x},\mathbf{y})$ is a quadratic form, then
     $p(\mathbf{x},\mathbf{y})$ is a normal probability density function (pdf),
     thus its marginal $p(\mathbf{y})$ is also a normal pdf.
+    Our aim is to derive the mean and covariance of $\mathbf{y}$,
+    $\boldsymbol{\mu}_y$ and $\Gamma_{yy}$, respectively.
 
     Call
 
-    \begin{align*}
+    \begin{align}
         p(\mathbf{x},\mathbf{y})=\mathcal{N}\left(\left[\begin{array}{c}
                                                             \mathbf{x}\\
                                                             \mathbf{y}
                                                         \end{array}\right]\left|\left[\begin{array}{c}
                                                                                           \boldsymbol{\mu}_x\\
                                                                                           \boldsymbol{\mu}_y\\
-                                                                                      \end{array}\right]\right.,\Gamma\right)
-    \end{align*}
+                                                                                      \end{array}\right]\right.,\Gamma\right)\label{eq:pxy}
+    \end{align}
 
     \noindent with
 
     \begin{align*}
-        \Gamma^{-1}=\Phi=\left[\begin{array}{cc}
-                                   \Phi_{xx}&\Phi_{xy}\\
-                                   \Phi_{yx}&\Phi_{yy}
+        \Phi^{-1}=\Gamma=\left[\begin{array}{cc}
+                                   \Gamma_{xx}&\Gamma_{xy}\\
+                                   \Gamma_{yx}&\Gamma_{yy}
                                \end{array}\right]
     \end{align*}
 
-    \noindent then
+    Next,
 
     \begin{align}
         \ln p(\mathbf{x},\mathbf{y})&=-\frac{1}{2}\left[(\mathbf{x}-\boldsymbol{\mu}_x)^\intercal,(\mathbf{y}-\boldsymbol{\mu}_y)^\intercal\right]\Phi\left[(\mathbf{x}-\boldsymbol{\mu}_x),(\mathbf{y}-\boldsymbol{\mu}_y))\right]+K_1\nonumber\\
-                                    &=-\frac{1}{2}[\mathbf{x}^\intercal,\mathbf{y}^\intercal]\Phi\raisebox{-0.7em}{$\left[\begin{array}{c}\mathbf{x}\\\mathbf{y}\end{array}\right]$}+\frac{1}{2}[\mathbf{x}^\intercal,\mathbf{y}^\intercal]\Phi\raisebox{-0.7em}{$\left[\begin{array}{c}\boldsymbol{\mu}_x\\\boldsymbol{\mu}_y\end{array}\right]$}+\frac{1}{2}[\boldsymbol{\mu}_x^\intercal,\boldsymbol{\mu}_y^\intercal]\Phi\raisebox{-0.7em}{$\left[\begin{array}{c}\mathbf{x}\\\mathbf{y}\end{array}\right]$}+K_2
+                                    &=-\frac{1}{2}[\mathbf{x}^\intercal,\mathbf{y}^\intercal]\Phi\raisebox{-0.7em}{$\left[\begin{array}{c}\mathbf{x}\\\mathbf{y}\end{array}\right]$}+\frac{1}{2}[\mathbf{x}^\intercal,\mathbf{y}^\intercal]\Phi\raisebox{-0.7em}{$\left[\begin{array}{c}\boldsymbol{\mu}_x\\\boldsymbol{\mu}_y\end{array}\right]$}+\frac{1}{2}[\boldsymbol{\mu}_x^\intercal,\boldsymbol{\mu}_y^\intercal]\Phi\raisebox{-0.7em}{$\left[\begin{array}{c}\mathbf{x}\\\mathbf{y}\end{array}\right]$}+K_2\label{eq:completingSquares2}
     \end{align}
 
-    We will next derive
-    the mean and covariance of $p(\mathbf{x},\mathbf{y})$, from which we will
-    extract the mean and covariance of $p(\mathbf{y})$.
+    \noindent where $K_1$ and $K_2$ are contants that does not depend on $\mathbf{x}$ or
+    $\mathbf{y}$.
+
+
+    From Eqs.~\ref{eq:completingSquares1} and~\ref{eq:completingSquares2}
+    it follows that
+
+    \begin{align}
+        \Phi=\left[\begin{array}{cc}
+                       A^\intercal\Sigma^{-1}A+\Lambda^{-1}&-A^\intercal\Sigma^{-1}\nonumber\\
+                       -\Sigma^{-1}A&\Sigma^{-1}
+                   \end{array}\right]
+    \end{align}
+
+    \noindent and
+
+    \begin{align*}
+        \raisebox{0.7em}{$\Phi$}\left[\begin{array}{c}\boldsymbol{\mu}_x\\\boldsymbol{\mu}_y\end{array}\right]=
+            \left[\begin{array}{c}
+                      A^\intercal\Sigma^{-1}\mathbf{b}+\Lambda^{-1}\boldsymbol{\mu}\\
+                      -\Sigma^{-1}\mathbf{b}
+                  \end{array}\right]
+    \end{align*}
+
+    Then
+
+    \begin{align}
+        \Gamma&=\left[\begin{array}{cc}
+                         \Gamma_{xx}&\Gamma_{xy}\\
+                         \Gamma_{yx}&\Gamma_{yy}
+                     \end{array}\right]=
+        \Phi^{-1}=\left[\begin{array}{cc}
+                                    A^\intercal\Sigma^{-1}A+\Lambda^{-1}&-A^\intercal\Sigma^{-1}\\
+                                    -\Sigma^{-1}A&\Sigma^{-1}
+                                \end{array}\right]^{-1}
+                        =\left[\begin{array}{cc}
+                            \Lambda&\Lambda A\\
+                                    A\Lambda&\Sigma+A\Lambda A^\intercal
+                                \end{array}\right]\label{eq:Gamma_final}\\
+        \left[\begin{array}{c}\boldsymbol{\mu}_x\\\boldsymbol{\mu}_y\end{array}\right]&=
+            \Phi^{-1}\left[\begin{array}{c}
+                      A^\intercal\Sigma^{-1}\mathbf{b}+\Lambda^{-1}\boldsymbol{\mu}\\
+                      -\Sigma^{-1}\mathbf{b}
+                  \end{array}\right]=
+            \Gamma\left[\begin{array}{c}
+                      A^\intercal\Sigma^{-1}\mathbf{b}+\Lambda^{-1}\boldsymbol{\mu}\\
+                      -\Sigma^{-1}\mathbf{b}
+                  \end{array}\right]
+                  =\left[\begin{array}{c}
+                              \boldsymbol{\mu}\\
+                              A\boldsymbol{\mu}+\mathbf{b}
+                          \end{array}\right]\nonumber
+    \end{align}
+
+    Thus,
+
+    \begin{align*}
+        \Gamma_{yy}&=\Sigma+A\Lambda A^\intercal\\
+        \boldsymbol{\mu}_y&=A\boldsymbol{\mu}+\mathbf{b}
+    \end{align*}
 
 \end{proof}
+
+Note:
+
+\begin{enumerate}
+    \item The last equality in Eq.~\ref{eq:Gamma_final} follows from
+        Lemma~\ref{lemma:inverseOfBlockMatrix}.
+\end{enumerate}
