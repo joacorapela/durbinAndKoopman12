@@ -22,14 +22,6 @@
 
 \maketitle
 
-\begin{figure}[h]
-    \centering
-    \input{figLDS}
-    \caption{Graphical models for our linear dynamical system in
-    Theorem~\ref{thm:kalmanFilterEqs}.}
-    \label{fig:ldsModel}
-\end{figure}
-
 \begin{theorem}
 	\label{thm:kalmanFilterEqs}
 
@@ -66,6 +58,14 @@
         P_{0|0}&=V_0\label{eq:P0G0}
     \end{align}
 \end{theorem}
+
+\begin{figure}
+    \centering
+    \input{figLDS}
+    \caption{Graphical models for our linear dynamical system in
+    Theorem~\ref{thm:kalmanFilterEqs}.}
+    \label{fig:ldsModel}
+\end{figure}
 
 The following proof adds a few details to that given in Section 4.3.1 of
 \citet{durbinAndKoopman12}.
@@ -200,6 +200,10 @@ Notes:
 \pagebreak
 
 \input{marginalOfLinearGaussianModel}
+
+\pagebreak
+
+\input{inverseOfBlockMatrix}
 
 \bibliographystyle{apalike}
 \bibliography{linearDynamicalSystems}
