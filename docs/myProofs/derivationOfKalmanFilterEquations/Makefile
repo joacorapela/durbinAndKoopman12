@@ -1,6 +1,6 @@
 all: derivationKalmanFilterEqs.pdf
 
-derivationKalmanFilterEqs.pdf: derivationKalmanFilterEqs.tex figLDS.tex conditionalDistForGaussianRVs.tex marginalOfLinearGaussianModel.tex
+derivationKalmanFilterEqs.pdf: derivationKalmanFilterEqs.tex figLDS.tex conditionalDistForGaussianRVs.tex marginalOfLinearGaussianModel.tex inverseOfBlockMatrix.tex
 	pdflatex derivationKalmanFilterEqs.tex
 	bibtex derivationKalmanFilterEqs.aux
 	pdflatex derivationKalmanFilterEqs.tex
