@@ -5,12 +5,13 @@
 \allowdisplaybreaks
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage[colorlinks=true]{hyperref}
 \usepackage{tikz}
 \usepackage{natbib}
 \usepackage[margin=2cm]{geometry}
 
 \usetikzlibrary{bayesnet}
+
+\usepackage[colorlinks=true,linkcolor=red]{hyperref}
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
@@ -33,7 +34,7 @@
         \mathbf{x}_0&\sim N(\mathbf{m}_0,V_0)&&
     \end{alignat*}
 
-    \noindent (represented in Fig.~\ref{fig:ldsModel}), then the predictive
+    \noindent (represented graphically in Fig.~\ref{fig:ldsModel}), then the predictive
     distribution, $p(\mathbf{x}_t|\mathbf{y}_1,\ldots,\mathbf{y}_{t-1})$, and
     the filtering distribution,
     $p(\mathbf{x}_t|\mathbf{y}_1,\ldots,\mathbf{y}_t)$, are
@@ -67,7 +68,7 @@
     \label{fig:ldsModel}
 \end{figure}
 
-The following proof adds a few details to that given in Section 4.3.1 of
+The following proof adds details to that given in Section 4.3.1 of
 \citet{durbinAndKoopman12}.
 
 \begin{proof}
@@ -76,8 +77,9 @@ The following proof adds a few details to that given in Section 4.3.1 of
     \begin{align}
         \mathbf{x}_{t|t-1}&=E\{\mathbf{x}_t|Y_{t-1}\}=E\{A_{t-1}\mathbf{x}_{t-1}+\mathbf{w}_{t-1}|Y_{t-1}\}\nonumber\\
                           &=A_{t-1}E\{\mathbf{x}_{t-1}|Y_{t-1}\}+E\{\mathbf{w}_{t-1}|Y_{t-1}\}\nonumber\\
-                          &=A_{t-1}\mathbf{x}_{t-1|t-1}+E\{\mathbf{w}_{t-1}\}=A_{t-1}\mathbf{x}_{t-1|t-1}\label{eq:p1n1}
+                          &=A_{t-1}\mathbf{x}_{t-1|t-1}+E\{\mathbf{w}_{t-1}\}\footnotemark[1]=A_{t-1}\mathbf{x}_{t-1|t-1}\nonumber
     \end{align}
+    \footnotetext[1]{$\mathbf{w}_{t-1}$ is independent of $Y_{t-1}$.}
 	This proves Eq.~\ref{eq:xtGtm1}.
 
     \begin{align}
@@ -89,11 +91,13 @@ The following proof adds a few details to that given in Section 4.3.1 of
                           &\qquad A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})w_{t-1}^\intercal|Y_{t-1}\}+\nonumber\\
                           &\qquad E\{w_{t-1}w_{t-1}^\intercal|Y_{t-1}\}\nonumber\\
                           &=A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal+\nonumber\\
-                          &\qquad E\{w_{t-1}|Y_{t-1}\}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal+\nonumber\\
+                          &\qquad E\{w_{t-1}|Y_{t-1}\}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})^\intercal|Y_{t-1}\}A_{t-1}^\intercal\footnotemark[2]+\nonumber\\
                           &\qquad A_{t-1}E\{(\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1})|Y_{t-1}\}E\{w_{t-1}^\intercal|Y_{t-1}\}+\nonumber\\
-                          &\qquad E\{w_{t-1}w_{t-1}^\intercal\}\label{eq:p1n2}\\
-                          &=A_{t-1}P_{t-1|t-1}A_{t-1}^\intercal+Q_{t-1}\label{eq:p1n3}
+                          &\qquad E\{w_{t-1}w_{t-1}^\intercal\}\nonumber\\
+                          &=A_{t-1}P_{t-1|t-1}A_{t-1}^\intercal+Q_{t-1}\footnotemark[3]\nonumber
     \end{align}
+    \footnotetext[2]{$\mathbf{w}_{t-1}$ is independent of $x_{t-1}$ given $Y_{t-1}$.}
+    \footnotetext[3]{$E\{\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1}|Y_{t-1}\}=E\{\mathbf{x}_{t-1}|Y_{t-1}\}-\mathbf{x}_{t-1|t-1}=\mathbf{x}_{t-1|t-1}-\mathbf{x}_{t-1|t-1}=0$.}
 	This proves Eq.~\ref{eq:PtGtm1}.
 
     \begin{align}
@@ -109,26 +113,37 @@ The following proof adds a few details to that given in Section 4.3.1 of
     \end{align}
 
     \noindent $Y_{t-1}$ and $\mathbf{z}_t$ are fixed if and only if $Y_t$ is
-    fixed\footnote{If we now $Y_{t-1}$ and $\mathbf{z}_t$, then we know
+    fixed\footnotemark[4]. Then
+
+    \footnotetext[4]{If we now $Y_{t-1}$ and $\mathbf{z}_t$, then we know
     $\hat{\mathbf{y}}_{t|t-1}$ and $\mathbf{z}_t$, then (by the first equality
     in Eq.~\ref{eq:ztProof}) we know $\mathbf{y}_t$, thus we know $Y_t$. Also, if we
     know $Y_t$, we know $\hat{\mathbf{y}}_{t|t-1}$ and $\mathbf{y}_t$ and (by
-    the first equality in Eq.~\ref{eq:ztProof}) we know $\mathbf{z}_t$.}. Then
+    the first equality in Eq.~\ref{eq:ztProof}) we know $\mathbf{z}_t$.}.
 
     \begin{align}
-        \mathbf{x}_{t|t}&=E\{\mathbf{x}_t|Y_t\}=E\{\mathbf{x}_t|Y_{t-1},\mathbf{z}_t\}\label{eq:measureTheoryEq}\\
-                        &=E\{\mathbf{x}_t|Y_{t-1}\}+\text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)\text{Cov}\left(\mathbf{z}_t|Y_{t-1}\right)^{-1}\mathbf{z}_t\label{eq:xtGtTmp}\\
+        \mathbf{x}_{t|t}&=E\{\mathbf{x}_t|Y_t\}=E\{\mathbf{x}_t|Y_{t-1},\mathbf{z}_t\}\footnotemark[5]\nonumber\\
+                        &=E\{\mathbf{x}_t|Y_{t-1}\}+\text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)\text{Cov}\left(\mathbf{z}_t|Y_{t-1}\right)^{-1}\mathbf{z}_t\footnotemark[6]\label{eq:xtGtTmp}\\
         \text{Cov}\left(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1}\right)&=\text{Cov}\left(\mathbf{x}_t,B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t|Y_{t-1}\right)\nonumber\\
                                                                 &=E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t)^\intercal|Y_{t-1}\}\nonumber\\
                                                                 &=E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})(\mathbf{x}_t-\mathbf{x}_{t|t-1})^\intercal|Y_{t-1}\}B_t^\intercal\nonumber\\
                                                                 &\qquad +E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})\mathbf{v}_t^\intercal|Y_{t-1}\}\nonumber\\
-                                                                &=P_{t|t-1}B_t^\intercal\label{eq:covXZ}\\
+                                                                &=P_{t|t-1}B_t^\intercal\footnotemark[7]\label{eq:covXZ}\\
         S_t=\text{Cov}\left(\mathbf{z}_t|Y_{t-1}\right)&=E\{\mathbf{z}_t\mathbf{z}_t^\intercal|Y_{t-1}\}\nonumber\\
-                                                       &=E\{\left(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\right)\left(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\right)^\intercal|Y_{t-1}\}\nonumber\\
-                                                       &=B_tE\{\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)^\intercal|Y_{t-1}\}B_t^\intercal\nonumber\\
-                                                       &\qquad +E\{\mathbf{v}_t\mathbf{v_t}^\intercal|Y_{t-1}\}\nonumber\\
+                                                       &=E\{\left(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\right)\left(B_t(\mathbf{x}_t-\mathbf{x}_{t|t-1})+\mathbf{v}_t\right)^\intercal|Y_{t-1}\}\footnotemark[8]\nonumber\\
+                                                       &=B_tE\{\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)^\intercal|Y_{t-1}\}B_t^\intercal+B_tE\{\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)\mathbf{v}_t^\intercal|Y_{t-1}\}\nonumber\\
+                                                       &\qquad +E\{\mathbf{v}_t\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)^\intercal\}B_t^\intercal+E\{\mathbf{v}_t\mathbf{v_t}^\intercal|Y_{t-1}\}\nonumber\\
+                                                       &=B_tE\{\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)\left(\mathbf{x}_t-\mathbf{x}_{t|t-1}\right)^\intercal|Y_{t-1}\}B_t^\intercal+\nonumber\\
+                                                       &\qquad +E\{\mathbf{v}_t\mathbf{v_t}^\intercal\}\footnotemark[7]\footnotemark[9]\nonumber\\
                                                        &=B_tP_{t|t-1}B_t^\intercal+R_t\label{eq:covZ}
     \end{align}
+    \footnotetext[5]{The validity of the last equality follow from measure theory arguments (that I don't know).}
+    \footnotetext[6]{Refer to Eq.~\ref{eq:conditionalMean} in Lemma~\ref{lemma:conditionalGaussians}.}
+    \footnotetext[7]{$E\{(\mathbf{x}_t-\mathbf{x}_{t|t-1})\mathbf{v}_t^\intercal|Y_{t-1}\}=E\{\mathbf{x}_t-\mathbf{x}_{t|t-1}|Y_{t-1}\}E\{\mathbf{v}_t^\intercal|Y_{t-1}\}=(E\{\mathbf{x}_t|Y_{t-1}\}-\mathbf{x}_{t|t-1})E\{\mathbf{v}_t^\intercal|Y_{t-1}\}=(\mathbf{x}_{t|t-1}-\mathbf{x}_{t|t-1})E\{\mathbf{v}_t^\intercal|Y_{t-1}\}=0$
+    because $\mathbf{x}_t$ is independent of $\mathbf{v}_t$ given $Y_{t-1}$.}
+    \footnotetext[8]{Eq.~\ref{eq:ztProof}.}
+    \footnotetext[9]{$\mathbf{v}_t$ is independent from $Y_{t-1}$.}
+
 	This proves Eq.~\ref{eq:St}.
 
     Combining Eqs.~\ref{eq:xtGtTmp}, \ref{eq:covXZ} and~\ref{eq:covZ} we obtain
@@ -137,9 +152,21 @@ The following proof adds a few details to that given in Section 4.3.1 of
         \mathbf{x}_{t|t}&=\mathbf{x}_{t|t-1}+P_{t|t-1}B_t^\intercal
         S_t^{-1}\mathbf{z}_t\nonumber\\
                         &=\mathbf{x}_{t|t-1}+K_t\mathbf{z}_t\quad\text{with } K_t=P_{t|t-1}B_t^\intercal S_t^{-1}\nonumber\\
-        P_{t|t}&=\text{Cov}(\mathbf{x}_t|Y_t)=\text{Cov}(\mathbf{x}_t|Y_{t-1},\mathbf{z}_t)=P_{t|t-1}-P_{t|t-1}B_t^\intercal S_t^{-1}B_tP_{t|t-1}\nonumber\\
-               &=\left(I-P_{t|t-1}B_t^\intercal S_t^{-1}B_t\right)P_{t|t-1}=\left(I-K_tB_t\right)P_{t|t-1}\label{eq:PtGtProof}
+        P_{t|t}&=\text{Cov}(\mathbf{x}_t|Y_t)=\text{Cov}(\mathbf{x}_t|Y_{t-1},\mathbf{z}_t)=P_{t|t-1}-P_{t|t-1}B_t^\intercal
+        S_t^{-1}B_tP_{t|t-1}\footnotemark[10]\nonumber\\
+               &=\left(I-P_{t|t-1}B_t^\intercal S_t^{-1}B_t\right)P_{t|t-1}=\left(I-K_tB_t\right)P_{t|t-1}\nonumber
     \end{align}
+    \footnotetext[10]{Refer to Eq.~\ref{eq:conditionalCov} in Lemma~\ref{lemma:conditionalGaussians} with $\mathbf{x}=\mathbf{x}_t|Y_{t-1}$ and $\mathbf{y}=\mathbf{z}_t|Y_{t-1}$ giving
+
+		\begin{align*}
+			\Sigma_{x|y}&=\Sigma_{\mathbf{x}_t|\mathbf{z}_t,Y_{t-1}}=\Sigma_{\mathbf{x}_t|Y_t}=P_{t|t}\\
+			\Sigma_{xx}&=\Sigma_{\mathbf{x}_t|Y_{t-1}}=P_{t|t-1}\\
+			\Sigma_{xy}&=\Sigma_{\mathbf{x}_t\mathbf{z}_t|Y_{t-1}}=\text{Cov}(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1})=P_{t|t-1}B_t^\intercal\\
+			\Sigma_{yy}&=\Sigma_{\mathbf{z}_t\mathbf{z}_t|Y_{t-1}}=\text{Cov}(\mathbf{z}_t|Y_{t-1})=S_t\\
+                        &\text{thus}\\
+            P_{t|t}&=P_{t|t-1}-P_{t|t-1}B_t^\intercal S_t^{-1}B_tP_{t|t-1}
+		\end{align*}
+    }
 	This proves Eqs.~\ref{eq:xtGt}, \ref{eq:PtGt} and~\ref{eq:Kt}.
 
 	Using Eqs.~\ref{eq:x0G0} and~\ref{eq:P0G0} in Eqs.~\ref{eq:xtGtm1} and~\ref{eq:PtGtm1} we obtain
@@ -153,45 +180,12 @@ The following proof adds a few details to that given in Section 4.3.1 of
 
     \begin{align}
 		p(\mathbf{x}_1)&=\int p(\mathbf{x}_1,\mathbf{x}_0)d\mathbf{x}_0=\int p(\mathbf{x}_1|\mathbf{x}_0)p(\mathbf{x}_0)d\mathbf{x}_0=\int\mathcal{N}(\mathbf{x}_1|A_0\mathbf{x}_0,Q_0)\mathcal{N}(\mathbf{x}_0|\mathbf{m}_0,V_0)d\mathbf{x}_0\nonumber\\
-		               &=\mathcal{N}(\mathbf{x}_1|A_0\mathbf{m}_0,A_0V_0A_0^\intercal+Q_0)=\mathcal{N}(\mathbf{x}_1|\mathbf{x}_{1|0},\mathbf{P}_{1|0})\label{eq:px1}
+                       &=\mathcal{N}(\mathbf{x}_1|A_0\mathbf{m}_0,A_0V_0A_0^\intercal+Q_0)\footnotemark[11]=\mathcal{N}(\mathbf{x}_1|\mathbf{x}_{1|0},\mathbf{P}_{1|0})\nonumber
     \end{align}
+    \footnotetext[11]{Lemma~\ref{lemma:linearModelGaussianLatents}.}
 	This proves Eqs.~\ref{eq:x0G0} and~\ref{eq:P0G0}.
 
 \end{proof}
-
-Notes:
-\begin{enumerate}
-    \item the first equality in Eq.~\ref{eq:p1n1} holds because
-        $\mathbf{w}_{t-1}$ is independent of $Y_{t-1}$.
-    \item the second and third terms in Eq.~\ref{eq:p1n2} hold because
-        $w_{t-1}$ is independent of $x_{t-1}$ given $Y_{t-1}$.
-    \item Eq.~\ref{eq:p1n3} holds because
-        $E\{\mathbf{x}_{t-1}-\mathbf{x}_{t-1|t-1}|Y_{t-1}\}=0$.
-    \item the validity of Eq.~\ref{eq:measureTheoryEq} follows from measure
-        theory concepts that I don't really know.
-    \item the last equality in Eq.~\ref{eq:xtGtTmp} follows from Eq.~\ref{eq:conditionalMean} in
-        Lemma~\ref{lemma:conditionalGaussians}
-    \item the last equality in Eq.~\ref{eq:covXZ} holds because $\mathbf{x}_t$
-        in independent (and therefore uncorrelated) of $\mathbf{v}_t$.
-    \item the second equality of Eq.~\ref{eq:covZ} uses Eq.~\ref{eq:ztProof}.
-    \item the third equality of Eq.~\ref{eq:covZ} holds because $\mathbf{x}_t$
-        is independent of $\mathbf{v}_t$ given $Y_{t-1}$.
-    \item the last equality of Eq.~\ref{eq:covZ} holds because $\mathbf{v}_t$
-        is independent of $Y_{t-1}$.
-	\item in the third equality of Eq.~\ref{eq:PtGtProof} we used Eq.~\ref{eq:conditionalCov} in Lemma~\ref{lemma:conditionalGaussians}
-	with $\mathbf{x}=\mathbf{x}_t|Y_{t-1}$ and $\mathbf{y}=\mathbf{z}_t|Y_{t-1}$ giving
-
-		\begin{align*}
-			\Sigma_{x|y}&=\Sigma_{\mathbf{x}_t|\mathbf{z}_t,Y_{t-1}}=\Sigma_{\mathbf{x}_t|Y_t}=P_{t|t}\\
-			\Sigma_{xx}&=\Sigma_{\mathbf{x}_t|Y_{t-1}}=P_{t|t-1}\\
-			\Sigma_{xy}&=\Sigma_{\mathbf{x}_t\mathbf{z}_t|Y_{t-1}}=\text{Cov}(\mathbf{x}_t,\mathbf{z}_t|Y_{t-1})=P_{t|t-1}B_t^\intercal\\
-			\Sigma_{yy}&=\Sigma_{\mathbf{z}_t\mathbf{z}_t|Y_{t-1}}=\text{Cov}(\mathbf{z}_t|Y_{t-1})=S_t\\
-                        &\text{thus}\\
-            P_{t|t}&=P_{t|t-1}-P_{t|t-1}B_t^\intercal S_t^{-1}B_tP_{t|t-1}
-		\end{align*}
-	\item in the fourth equality of Eq.~\ref{eq:px1} we used Lemma~\ref{lemma:linearModelGaussianLatents}.
-
-\end{enumerate}
 
 \pagebreak
 
