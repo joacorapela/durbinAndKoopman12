@@ -2,17 +2,17 @@
 
     Let
 
-    \begin{align}
-        p(\mathbf{y}|\mathbf{x})&=\mathcal{N}(\mathbf{y}|A\mathbf{x}+\mathbf{b},\Sigma)\label{eq:pyGx}\\
-        p(\mathbf{x})&=\mathcal{N}(\mathbf{x}|\boldsymbol{\mu},\Lambda)\label{eq:px}
-    \end{align}
+    \begin{align*}
+        p(\mathbf{y}|\mathbf{x})&=\mathcal{N}(\mathbf{y}|A\mathbf{x}+\mathbf{b},\Sigma)\\
+        p(\mathbf{x})&=\mathcal{N}(\mathbf{x}|\boldsymbol{\mu},\Lambda)
+    \end{align*}
 
     \noindent then
 
-    \begin{align}
-        p(\mathbf{y})=\mathcal{N}(\mathbf{y}|A\boldsymbol{\mu}+\mathbf{b},A\Lambda A^\intercal+\Sigma)\label{eq:py}
-    \end{align}
-
+    \begin{align*}
+        p(\mathbf{y})=\mathcal{N}(\mathbf{y}|A\boldsymbol{\mu}+\mathbf{b},A\Lambda A^\intercal+\Sigma)
+    \end{align*}
+    \label{lemma:linearModelGaussianLatents}
 \end{lemma}
 
 \begin{proof}
@@ -54,15 +54,15 @@
 
     Call
 
-    \begin{align}
+    \begin{align*}
         p(\mathbf{x},\mathbf{y})=\mathcal{N}\left(\left[\begin{array}{c}
                                                             \mathbf{x}\\
                                                             \mathbf{y}
                                                         \end{array}\right]\left|\left[\begin{array}{c}
                                                                                           \boldsymbol{\mu}_x\\
                                                                                           \boldsymbol{\mu}_y\\
-                                                                                      \end{array}\right]\right.,\Gamma\right)\label{eq:pxy}
-    \end{align}
+                                                                                      \end{array}\right]\right.,\Gamma\right)
+    \end{align*}
 
     \noindent with
 
@@ -138,14 +138,8 @@
 
     \begin{align*}
         \Gamma_{yy}&=\Sigma+A\Lambda A^\intercal\\
-        \boldsymbol{\mu}_y&=A\boldsymbol{\mu}+\mathbf{b}
+        \boldsymbol{\mu}_y&=A\boldsymbol{\mu}+\mathbf{b}\footnotemark[13]
     \end{align*}
+    \footnotetext[13]{Lemma~\ref{lemma:inverseOfBlockMatrix}.}
 
 \end{proof}
-
-Note:
-
-\begin{enumerate}
-    \item The last equality in Eq.~\ref{eq:Gamma_final} follows from
-        Lemma~\ref{lemma:inverseOfBlockMatrix}.
-\end{enumerate}
