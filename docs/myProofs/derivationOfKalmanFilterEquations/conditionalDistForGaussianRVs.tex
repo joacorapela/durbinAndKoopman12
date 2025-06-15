@@ -3,37 +3,37 @@
     Let $\mathbf{x}$ and $\mathbf{y}$ be jointly Gaussian distributed random
     vectors with
 
-    \begin{align}
+    \begin{align*}
         E\left\{\left[\begin{array}{c}
                           \mathbf{x}\\
                           \mathbf{y}
                       \end{array}\right]\right\}&=\left[\begin{array}{c}
                                                            \boldsymbol{\mu}_x\\
                                                            \boldsymbol{\mu}_y
-                                                       \end{array}\right]\label{eq:conditionaMean}\\
+                                                       \end{array}\right]\\
         \text{Cov}\left\{\left[\begin{array}{c}
                                    \mathbf{x}\\
                                    \mathbf{y}
                                \end{array}\right]\right\}&=\left[\begin{array}{cc}
                                                                      \Sigma_{xx} & \Sigma_{xy} \\
                                                                      \Sigma_{yx} & \Sigma_{yy} \\
-                                                                  \end{array}\right]\label{eq:conditionalCov}
-    \end{align}
+                                                                  \end{array}\right]
+    \end{align*}
 
     \noindent where $\Sigma_{yy}$ is assumed to be non-singular.
     %
     Then the conditional distribution of $\mathbf{x}$ given $\mathbf{y}$ is
     Gaussian with mean vector
 
-    \begin{align*}
-        \text{E}\{\mathbf{x}|\mathbf{y}\}=\boldsymbol{\mu}_x+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)
-    \end{align*}
+    \begin{align}
+        \text{E}\{\mathbf{x}|\mathbf{y}\}=\boldsymbol{\mu}_x+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\label{eq:conditionalMean}
+    \end{align}
 
     \noindent and covariance matrix
 
-    \begin{align*}
-        \text{Cov}\{\mathbf{x}|\mathbf{y}\}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}
-    \end{align*}
+    \begin{align}
+        \text{Cov}\{\mathbf{x}|\mathbf{y}\}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}\label{eq:conditionalCov}
+    \end{align}
 
     \label{lemma:conditionalGaussians}
 
@@ -77,19 +77,8 @@
         \text{E}\{\mathbf{x}|\mathbf{y}\}&=\text{E}\{\mathbf{z}|\mathbf{y}\}+\text{E}\{\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)|\mathbf{y}\}\nonumber\\
                                          &=\text{E}\{\mathbf{z}\}+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\nonumber\\
                                          &=\boldsymbol{\mu}_x+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\nonumber\\
-        \text{Cov}\{\mathbf{x}|\mathbf{y}\}&=\text{Cov}\{\mathbf{z}+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)|\mathbf{y}\}=\text{Cov}\{\mathbf{z}|\mathbf{y}\}\label{eq:note1}\\
+        \text{Cov}\{\mathbf{x}|\mathbf{y}\}&=\text{Cov}\{\mathbf{z}+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)|\mathbf{y}\}=\text{Cov}\{\mathbf{z}|\mathbf{y}\}\footnotemark[12]\\
                                            &=\text{Cov}\{\mathbf{z}\}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}\nonumber
     \end{align}
-
+    \footnotetext[12]{when conditioning on $\mathbf{y}$, the term $\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)$ is a constant, and constants are irrelevant when computing covariances.}
 \end{proof}
-
-Notes:
-
-\begin{enumerate}
-
-    \item The last equality in Eq.~\ref{eq:note1} holds because, when
-        conditioning on $\mathbf{y}$, the term
-        $\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)$ is a
-        constant, and constants are irrelevant when computing covariances.
-
-\end{enumerate}
