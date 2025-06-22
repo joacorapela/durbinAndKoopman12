@@ -57,6 +57,8 @@
         \mathbf{z}-\boldsymbol{\mu}_z&=\left(\mathbf{x}-\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\right)-\boldsymbol{\mu}_x=(\mathbf{x}-\boldsymbol{\mu}_x)-\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\nonumber\\
         \text{Cov}\{\mathbf{z}\}&=\text{E}\{(\mathbf{z}-\boldsymbol{\mu}_z)(\mathbf{z}-\boldsymbol{\mu}_z)^\intercal\}\nonumber\\
                                 &=\text{E}\{\left[(\mathbf{x}-\boldsymbol{\mu}_x)-\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\right]\left[(\mathbf{x}-\boldsymbol{\mu}_x)-\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf{y}-\boldsymbol{\mu}_y)\right]^\intercal\}\nonumber\\
+                                &=\text{E}\{(\mathbf{x}-\boldsymbol{\mu}_x)(\mathbf{x}-\boldsymbol{\mu}_x)^\intercal\}-\text{E}\{(\mathbf{x}-\boldsymbol{\mu}_x)(\mathbf{y}-\boldsymbol{\mu}_y)^\intercal\}\Sigma_{yy}^{-1}\Sigma_{xy}-\Sigma_{xy}\Sigma_{yy}^{-1}\text{E}\{(\mathbf{y}-\boldsymbol{\mu}_y))(\mathbf{x}-\boldsymbol{\mu}_x)^\intercal\}+\nonumber\\
+                                &\quad \Sigma_{xy}\Sigma_{yy}^{-1}\text{E}\{(\mathbf{y}-\boldsymbol{\mu}_y)(\mathbf{y}-\boldsymbol{\mu}_y)^\intercal\}\Sigma_{yy}^{-1}\Sigma_{xy}\nonumber\\
                                 &=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}+\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yy}\Sigma_{yy}^{-1}\Sigma_{yx}\nonumber\\
                                 &=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}\nonumber\\
         \text{Cov}\{\mathbf{y},\mathbf{z}\}&=\text{E}\{(\mathbf{y}-\boldsymbol{\mu}_y)(\mathbf{z}-\boldsymbol{\mu}_z)^\intercal\}\nonumber\\
